@@ -389,4 +389,7 @@ async function main(): Promise<void> {
   // console.log("\n═══ 4.1 processInChunks length:", chunks.length); // 500
 }
 
-main().catch(console.error);
+// Запускаем main() только в Node.js (не в браузере)
+if (typeof window === "undefined") {
+  main().catch(console.error);
+}

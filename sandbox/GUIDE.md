@@ -1,23 +1,34 @@
 # Руководство по созданию практических заданий
 
 > **Назначение:** Стандарт для создания файлов упражнений в `js_sandbox` и `next_sandbox` по каждой теме курса.  
-> **Стек:** TypeScript · React · Next.js App Router
+> **Стек:** TypeScript · React · Next.js App Router  
+> **Инструкция для студентов:** [`HOW_TO_PRACTICE.md`](HOW_TO_PRACTICE.md)
 
 ---
 
 ## Структура файлов
 
-Для каждой темы создаются **два файла в двух sandbox-окружениях**:
+Для каждой темы создаются файлы в двух sandbox-окружениях:
 
 ```
 sandbox/
-├── js_sandbox/topics/topic_N/
-│   ├── exercises.ts   ← задания с TODO-заглушками
-│   └── solutions.ts   ← решения с пошаговыми объяснениями
+├── GUIDE.md                              ← это руководство (для авторов)
+├── HOW_TO_PRACTICE.md                    ← инструкция (для студентов)
 │
-└── next_sandbox/lessons/topic_N/
-    ├── exercises.ts   ← задания в контексте React/Next.js
-    └── solutions.tsx  ← решения + React-компоненты для демо
+├── js_sandbox/
+│   ├── tsconfig.json                     ← компилятор TS → JS для браузера
+│   └── topics/topic_N/
+│       ├── exercises.ts                  ← задания с TODO-заглушками
+│       ├── exercises.js                  ← GENERATED: tsc (не коммитить)
+│       ├── solutions.ts                  ← решения с объяснениями
+│       ├── solutions.js                  ← GENERATED: tsc (не коммитить)
+│       └── browser/
+│           └── index.html                ← раннер с кнопками (Live Server)
+│
+└── next_sandbox/
+    └── lessons/topic_N/
+        ├── exercises.ts                  ← задания в контексте React/Next.js
+        └── solutions.tsx                 ← решения + React-компоненты
 ```
 
 `N` — номер темы из [`general/02_topic_list.md`](../general/02_topic_list.md).
@@ -32,8 +43,8 @@ sandbox/
 |---|---|
 | **Теория** | Ключевые механизмы → задания на предсказание вывода |
 | **Связь со стеком** | React/Next.js паттерны → задания `next_sandbox` |
-| **Лучшие паттерны** | ❌ антипаттерн → задание "исправь баг" |
-| **Практическое задание** | Готовое условие → раздел "Реализация утилит" |
+| **Лучшие паттерны** | ❌ антипаттерн → задание «найди баг» |
+| **Практическое задание** | Готовое условие → раздел «Реализация утилит» |
 | **Решение** | Эталонный код → `solutions.ts` с дополненными объяснениями |
 
 ---
@@ -66,7 +77,7 @@ export function predict_1_1(): void {
 
 ### Тип 2 — Реализация утилиты
 
-**Когда:** для тем с конкретным алгоритмом из раздела "Практическое задание".
+**Когда:** для тем с конкретным алгоритмом из раздела «Практическое задание».
 
 ```typescript
 /**
@@ -86,7 +97,7 @@ export function myFunction(/* параметры */): ReturnType {
 ```
 
 **Правила:**
-- `throw new Error("Not implemented")` — обязательно, падает при запуске не реализованной функции
+- `throw new Error("Not implemented")` — обязательно, падает если функция не реализована
 - Подсказка намекает на подход, не раскрывает решение
 - В примере — реальные значения, не абстракции
 
@@ -94,7 +105,7 @@ export function myFunction(/* параметры */): ReturnType {
 
 ### Тип 3 — Найди и исправь баг
 
-**Когда:** берётся ❌-антипаттерн из раздела "Лучшие паттерны".
+**Когда:** берётся ❌-антипаттерн из раздела «Лучшие паттерны».
 
 ```typescript
 /**
@@ -108,7 +119,6 @@ export function myFunction(/* параметры */): ReturnType {
  */
 export async function brokenFunction(/* ... */): Promise</* ... */> {
   // BUG: <inline-комментарий на строке с ошибкой>
-  // ... баги код
 }
 
 export async function fixedFunction(/* ... */): Promise</* ... */> {
@@ -118,8 +128,8 @@ export async function fixedFunction(/* ... */): Promise</* ... */> {
 ```
 
 **Правила:**
-- Баги код — рабочий TypeScript, который компилируется, но ведёт себя неправильно
-- Вопросы: сначала "объясни" (понимание), потом "реализуй" (код)
+- Баг-код — рабочий TypeScript, который компилируется, но ведёт себя неправильно
+- Вопросы: сначала «объясни» (понимание), потом «реализуй» (код)
 - В `solutions.ts` — объяснение причины бага перед исправлением
 
 ---
@@ -153,103 +163,80 @@ export function createSomething(/* ... */): SomeInterface {
 
 ---
 
-## Структура файлов
+## Шаблоны файлов
 
-### `exercises.ts` — шаблон
+### `exercises.ts`
 
 ```typescript
 /**
  * Тема N — <Название темы>
- * Практические задания | <Pure TypeScript / Node.js> или <React / Next.js контекст>
+ * Практические задания | Pure TypeScript / Node.js
  *
- * Запуск:  npx tsx sandbox/js_sandbox/topics/topic_N/exercises.ts
- *
- * Инструкция:
- *  1. Читай условие задания
- *  2. Запиши ответ / реализацию
- *  3. Раскомментируй вызов в секции ЗАПУСК и проверь результат
- *  4. Сверься с solutions.ts
+ * Терминал: npx tsx sandbox/js_sandbox/topics/topic_N/exercises.ts
+ * Браузер:  открыть browser/index.html через Live Server
  */
 
 // ─────────────────────────────────────────────────────────────────────────────
-// РАЗДЕЛ 1 — Предсказание вывода / <тип заданий>
+// РАЗДЕЛ 1 — Предсказание вывода
 // ─────────────────────────────────────────────────────────────────────────────
-
 // ... задания типа 1
 
 // ─────────────────────────────────────────────────────────────────────────────
 // РАЗДЕЛ 2 — Реализация утилит
 // ─────────────────────────────────────────────────────────────────────────────
-
 // ... задания типа 2
 
 // ─────────────────────────────────────────────────────────────────────────────
 // РАЗДЕЛ 3 — Найди и исправь баг
 // ─────────────────────────────────────────────────────────────────────────────
-
 // ... задания типа 3
 
 // ─────────────────────────────────────────────────────────────────────────────
 // РАЗДЕЛ 4 — Паттерны
 // ─────────────────────────────────────────────────────────────────────────────
-
 // ... задания типа 4
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ЗАПУСК — раскомментируй нужный блок
 // ─────────────────────────────────────────────────────────────────────────────
 async function main(): Promise<void> {
-  // Раздел 1 — всегда активен (нет зависимостей от реализации)
   predict_1_1();
   await new Promise((r) => setTimeout(r, 20));
-
-  // Разделы 2-4 — раскомментируй после реализации задания
-  // const result = await myFunction(/* ... */);
-  // console.log(result);
+  // раскомментируй задания 2-4 после реализации
 }
 
-main().catch(console.error);
+// Запускаем только в Node.js — в браузере управление через кнопки index.html
+if (typeof window === "undefined") {
+  main().catch(console.error);
+}
 ```
 
-### `solutions.ts` — шаблон
+> **Важно:** строка `if (typeof window === "undefined")` обязательна.  
+> Без неё `main()` запустится автоматически при импорте в браузере.
+
+### `solutions.ts`
 
 ```typescript
 /**
  * Тема N — <Название темы>
- * Решения практических заданий | <Pure TypeScript / Node.js>
+ * Решения практических заданий | Pure TypeScript / Node.js
  *
- * Запуск:  npx tsx sandbox/js_sandbox/topics/topic_N/solutions.ts
+ * Запуск: npx tsx sandbox/js_sandbox/topics/topic_N/solutions.ts
  */
 
 /**
  * Решение 1.1 — Вывод: A → B → C
  *
- * Пошаговое объяснение:
- *  1. ...
- *  --- ключевой момент ---
- *  2. ...
+ * Пошаговая трассировка:
+ *  1. ...  (что происходит в Call Stack)
+ *  2. ...  (что попадает в Microtask/Macrotask Queue)
  *
- * Ключевое: <одно предложение, главный инсайт>
+ * Ключевое: <одно предложение — главный инсайт>
  */
-export function predict_1_1(): void {
-  // тот же код, что в exercises
-  // Вывод: A → B → C
-}
-
-/**
- * Решение 2.N — <Название>
- *
- * <Почему именно такой подход — 2-3 предложения>
- */
-export function myFunction(/* ... */): ReturnType {
-  // полная реализация
-}
+export function predict_1_1(): void { /* ... */ }
 
 // ... остальные решения
 
-// ─────────────────────────────────────────────────────────────────────────────
-// ЗАПУСК — демонстрация всех решений
-// ─────────────────────────────────────────────────────────────────────────────
 async function main(): Promise<void> {
   // все вызовы активны — solutions всегда запускается целиком
 }
@@ -257,11 +244,23 @@ async function main(): Promise<void> {
 main().catch(console.error);
 ```
 
+### `browser/index.html`
+
+Файл создаётся **один раз для каждой темы**. Импортирует `../exercises.js` (скомпилированный) как ES-модуль. Содержит:
+
+- Карточку для каждого задания с описанием
+- Кнопку «▶ Запустить» → вызывает соответствующую функцию
+- `<pre>` с перехваченным `console.log` — вывод прямо на странице
+- Кнопку «✕ Очистить»
+- Предупреждения (`⚠`) для заданий, которые могут зависнуть браузер
+
+За основу бери `sandbox/js_sandbox/topics/topic_1/browser/index.html`.
+
 ---
 
 ## Специфика `next_sandbox`
 
-`exercises.ts` и `solutions.tsx` в `next_sandbox/lessons/topic_N/` фокусируются на **React/Next.js проявлениях** темы из раздела "Связь со стеком".
+`exercises.ts` и `solutions.tsx` в `next_sandbox/lessons/topic_N/` фокусируются на **React/Next.js проявлениях** темы из раздела «Связь со стеком».
 
 ### Что добавляется в `solutions.tsx`
 
@@ -285,54 +284,98 @@ main().catch(console.error);
 ## Чеклист перед созданием файлов
 
 ```
-[ ] Прочитал всю тему в topics/section_*.md
-[ ] Выписал: 2-3 антипаттерна → задания "найди баг"
-[ ] Выписал: функции из "Практического задания" → задания "реализация"
-[ ] Выписал: React/Next.js примеры из "Связь со стеком" → next_sandbox
-[ ] exercises.ts: все функции бросают throw new Error("Not implemented")
-[ ] solutions.ts: каждое решение содержит объяснение + инсайт из курса
-[ ] solutions.ts: функция main() запускает ВСЕ решения и показывает вывод
-[ ] Запустил solutions.ts через npx tsx — нет ошибок, вывод совпадает с ожидаемым
+Подготовка
+  [ ] Прочитал всю тему в topics/section_*.md
+  [ ] Выписал: 2-3 антипаттерна → задания «найди баг»
+  [ ] Выписал: функции из «Практического задания» → задания «реализация»
+  [ ] Выписал: React/Next.js примеры из «Связь со стеком» → next_sandbox
+
+exercises.ts
+  [ ] Все TODO-функции бросают throw new Error("Not implemented")
+  [ ] main() защищён: if (typeof window === "undefined") { main()... }
+  [ ] Секции Раздел 1–4 оформлены однотипными разделителями ─────
+
+solutions.ts
+  [ ] Каждое решение содержит объяснение + инсайт из курса
+  [ ] Функция main() запускает ВСЕ решения и показывает ожидаемый вывод
+  [ ] Запустил: npx tsx solutions.ts — нет ошибок, вывод совпадает с ожидаемым
+
+browser/index.html
+  [ ] Карточка для каждой экспортируемой функции exercises.ts
+  [ ] Импорт: <script type="module"> import * as ex from '../exercises.js'
+  [ ] console.log перехвачен и выводится в <pre> карточки
+  [ ] Задания с зависанием помечены ⚠ badge-warn
+  [ ] Задания с зависимостями помечены badge-dep
+  [ ] Проверил в браузере: кнопки работают, ошибки показываются корректно
 ```
 
 ---
 
-## Запуск
+## Способы запуска
+
+### Режим 1 — Терминал (Node.js / npx tsx)
+
+Для быстрой проверки без браузера:
 
 ```bash
-# Запуск упражнений (показывает вывод разделов 1 и 2)
+# Просмотр заданий + вывод предсказаний (Раздел 1)
 npx tsx sandbox/js_sandbox/topics/topic_N/exercises.ts
 
-# Запуск решений (полная демонстрация всех ответов)
+# Запуск всех решений
 npx tsx sandbox/js_sandbox/topics/topic_N/solutions.ts
 
-# Из корня через npm-скрипты (если добавлены в root package.json)
-npm run topic:N
+# npm-скрипты из корня
+npm run ts:build   # разовая компиляция всех TS → JS
+npm run ts:watch   # компиляция в режиме watch
 ```
+
+### Режим 2 — Браузер (Live Server + tsc --watch)
+
+Для интерактивной работы с кнопками и выводом на странице:
+
+```bash
+# Терминал 1: компилятор в режиме watch
+npm run ts:watch
+
+# Редактор: правой кнопкой на browser/index.html → Open with Live Server
+```
+
+После этого цикл: **редактируй exercises.ts → сохрани → tsc компилирует → Live Server перезагружает страницу → жми кнопку**.
 
 ---
 
-## Пример: именование для новой темы
+## Пример: новая тема
 
-Тема 2 — Hoisting и TDZ (`section_1_engine.md`, строка 307):
+Тема 2 — Hoisting и TDZ (`section_1_engine.md`):
 
 ```
-sandbox/js_sandbox/topics/topic_2/exercises.ts
-sandbox/js_sandbox/topics/topic_2/solutions.ts
-sandbox/next_sandbox/lessons/topic_2/exercises.ts
-sandbox/next_sandbox/lessons/topic_2/solutions.tsx
+sandbox/js_sandbox/topics/topic_2/
+├── exercises.ts
+├── solutions.ts
+└── browser/
+    └── index.html
+
+sandbox/next_sandbox/lessons/topic_2/
+├── exercises.ts
+└── solutions.tsx
 ```
 
 Тема 15 — Promise (`section_5_async.md`):
 
 ```
-sandbox/js_sandbox/topics/topic_15/exercises.ts
-sandbox/js_sandbox/topics/topic_15/solutions.ts
-sandbox/next_sandbox/lessons/topic_15/exercises.ts
-sandbox/next_sandbox/lessons/topic_15/solutions.tsx
+sandbox/js_sandbox/topics/topic_15/
+├── exercises.ts
+├── solutions.ts
+└── browser/
+    └── index.html
+
+sandbox/next_sandbox/lessons/topic_15/
+├── exercises.ts
+└── solutions.tsx
 ```
 
 ---
 
-*Список всех тем курса: [`general/02_topic_list.md`](../general/02_topic_list.md)*  
-*Требования к содержанию тем: [`general/01_topic_requirements.md`](../general/01_topic_requirements.md)*
+*Список всех тем: [`general/02_topic_list.md`](../general/02_topic_list.md)*  
+*Требования к содержанию: [`general/01_topic_requirements.md`](../general/01_topic_requirements.md)*  
+*Инструкция для студентов: [`HOW_TO_PRACTICE.md`](HOW_TO_PRACTICE.md)*

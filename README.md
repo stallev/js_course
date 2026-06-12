@@ -2,8 +2,7 @@
 
 Структурированный курс по JavaScript с фокусом на **теорию под капотом**, **паттерны** и **подготовку к интервью** на позицию Middle FullStack Developer.
 
-**Стек:** Next.js · React · TypeScript
-
+**Стек:** Next.js · React · TypeScript  
 **Охват:** 28 тем · 8 разделов · ~49–71 часов самостоятельного изучения
 
 ---
@@ -35,18 +34,34 @@
 ```
 js_course/
 ├── README.md                          ← вы здесь
+│
 ├── general/
 │   ├── 01_topic_requirements.md       # стандарт качества каждой темы
 │   └── 02_topic_list.md               # сводная таблица тем и приоритетов
-└── topics/
-    ├── section_1_engine.md            # темы 1–3
-    ├── section_2_types.md             # темы 4–6
-    ├── section_3_functions.md         # темы 7–11
-    ├── section_4_oop.md               # темы 12–14
-    ├── section_5_async.md             # темы 15–18
-    ├── section_6_syntax.md            # темы 19–22
-    ├── section_7_modules.md           # темы 23–24
-    └── section_8_patterns.md          # темы 25–28
+│
+├── topics/
+│   ├── section_1_engine.md            # темы 1–3: Event Loop, Hoisting, Scope
+│   ├── section_2_types.md             # темы 4–6
+│   ├── section_3_functions.md         # темы 7–11
+│   ├── section_4_oop.md               # темы 12–14
+│   ├── section_5_async.md             # темы 15–18
+│   ├── section_6_syntax.md            # темы 19–22
+│   ├── section_7_modules.md           # темы 23–24
+│   └── section_8_patterns.md          # темы 25–28
+│
+└── sandbox/                           # практические упражнения
+    ├── HOW_TO_PRACTICE.md             # инструкция для студентов ← читай первым
+    ├── GUIDE.md                       # стандарт создания заданий (для авторов)
+    ├── js_sandbox/                    # упражнения: чистый TypeScript
+    │   ├── tsconfig.json              # компилятор TS → JS для браузера
+    │   └── topics/topic_N/
+    │       ├── exercises.ts           # задания с TODO (рабочий файл)
+    │       ├── solutions.ts           # решения с объяснениями
+    │       └── browser/index.html    # интерактивный раннер (Live Server)
+    └── next_sandbox/                  # упражнения: React / Next.js
+        └── lessons/topic_N/
+            ├── exercises.ts           # задания в контексте React
+            └── solutions.tsx          # решения + React-компоненты
 ```
 
 ---
@@ -154,33 +169,86 @@ js_course/
 
 ---
 
+## Практические упражнения (sandbox)
+
+Каждая тема курса сопровождается практическими заданиями в `sandbox/`.
+
+### Типы заданий
+
+| Тип | Описание |
+|---|---|
+| **Предсказание вывода** | Угадай порядок `console.log` до запуска |
+| **Реализация утилиты** | Напиши функцию по описанию и примеру |
+| **Найди и исправь баг** | Объясни причину бага, реализуй исправление |
+| **Паттерн** | Реализуй production-паттерн из курса |
+
+### Быстрый старт для sandbox
+
+```bash
+# 1. Установить зависимости (один раз)
+npm install
+
+# 2. Запустить компилятор TS→JS (в фоне, пока работаешь)
+npm run ts:watch
+
+# 3. Открыть browser/index.html через Live Server в VS Code
+#    или запустить в терминале:
+npx tsx sandbox/js_sandbox/topics/topic_1/exercises.ts
+```
+
+Подробная инструкция: [`sandbox/HOW_TO_PRACTICE.md`](sandbox/HOW_TO_PRACTICE.md)
+
+---
+
 ## Как проходить курс
 
 ```
 День 1 — теория
-  └── Прочитать тему целиком
+  └── Прочитать тему целиком (topics/section_*.md)
   └── Нарисовать схему механизма от руки
 
 День 2 — практика
-  └── Ответить на вопросы интервью без подсказок
-  └── Решить задание самостоятельно
+  └── Открыть sandbox/js_sandbox/topics/topic_N/exercises.ts
+  └── Выполнить задания (браузер или терминал)
+  └── Ответить на вопросы интервью вслух без подсказок
 
 День 3 — закрепление
-  └── Сравнить решение с эталоном в материале
+  └── Запустить solutions.ts, сравнить с эталоном
   └── Записать 3 инсайта в свои заметки
 ```
 
 **Самопроверка:** закройте материал и произнесите ответы на 7–9 вопросов вслух. Если формулировка «плывёт» — вернитесь к теории.
 
-Примеры кода из курса — TypeScript / ES2022+. Для запуска заданий достаточно Node.js 18+ или песочницы (StackBlitz, CodeSandbox).
-
 ---
 
 ## Быстрый старт
 
-1. Откройте [`topics/section_1_engine.md`](topics/section_1_engine.md) — тема 1 (Event Loop)
-2. Пройдите разделы по порядку или по приоритету 🔴 из таблицы выше
-3. При подготовке к интервью — повторяйте блок **Вопросы интервью** в каждой теме
+```bash
+# Клонируй репозиторий
+git clone <repo-url>
+cd js_course
+
+# Установи зависимости (TypeScript компилятор)
+npm install
+```
+
+Затем:
+
+1. Открой [`topics/section_1_engine.md`](topics/section_1_engine.md) — тема 1 (Event Loop)
+2. Изучи теорию, схемы, примеры кода
+3. Перейди в `sandbox/` — прочитай [`HOW_TO_PRACTICE.md`](sandbox/HOW_TO_PRACTICE.md)
+4. Запусти упражнения по теме 1: `npm run ts:watch` + Live Server
+
+---
+
+## npm-скрипты
+
+```bash
+npm run ts:build      # Скомпилировать все TS-упражнения → JS (разово)
+npm run ts:watch      # Компилятор в режиме watch (для браузерного раннера)
+npm run next:dev      # Dev-сервер Next.js sandbox
+npm run next:build    # Production-сборка Next.js sandbox
+```
 
 ---
 
@@ -191,4 +259,4 @@ js_course/
 
 ---
 
-*Версия курса: 1.0 · Middle FullStack Interview · 2024–2026*
+*Версия курса: 1.1 · Middle FullStack Interview · 2024–2026*
