@@ -57,7 +57,7 @@ export function predict_1_2(): void {
     .then(() => console.log("3"));
 
   console.log("4");
-  // Вывод: 4 → 1 → 3 → 2
+  // Вывод: 4 → 1 → 2 → 3
 }
 
 /**

@@ -13,67 +13,56 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import {
+  fetchUserProfile,
+  fetchUserPosts,
+  fetchUserAlbumStats,
+  fetchPlaceholderPost,
+} from "./data-api";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// РАЗДЕЛ 1 — Promise.all в Server Components
+// РАЗДЕЛ 1 — Promise.all в Server Components (JSONPlaceholder)
 // ─────────────────────────────────────────────────────────────────────────────
 
-const mockDelay = (ms: number) =>
-  new Promise<void>((r) => setTimeout(r, ms));
-
-export async function fetchUserProfile(id: string) {
-  await mockDelay(300);
-  return { id, name: "Alice", email: "alice@example.com" };
-}
-export async function fetchUserPosts(userId: string) {
-  await mockDelay(400);
-  return [{ id: 1, title: "Hello World" }, { id: 2, title: "Second Post" }];
-}
-export async function fetchUserFollowers(userId: string) {
-  await mockDelay(150);
-  return { count: 42 };
-}
+export {
+  fetchUserProfile,
+  fetchUserPosts,
+  fetchUserAlbumStats,
+  fetchPlaceholderPost,
+} from "./data-api";
 
 /**
  * Решение 1.1 — fastProfile с Promise.all
  *
- * Promise.all([p1, p2, p3]):
- *   - Все три Promise запускаются одновременно
- *   - Ждём пока ALL завершатся (или один упадёт)
- *   - Время ≈ max(300, 400, 150) = 400ms вместо 850ms
- *   - Порядок результатов совпадает с порядком в массиве
+ * Три fetch к JSONPlaceholder стартуют одновременно.
+ * Время ≈ max(latency₁, latency₂, latency₃), а не сумма.
  */
 export async function fastProfile(userId: string) {
-  const [user, posts, followers] = await Promise.all([
+  const [user, posts, albumStats] = await Promise.all([
     fetchUserProfile(userId),
     fetchUserPosts(userId),
-    fetchUserFollowers(userId),
+    fetchUserAlbumStats(userId),
   ]);
-  return { user, posts, followers };
+  return { user, posts, albumStats };
 }
 
 /**
  * Решение 1.2 — resilientProfile с Promise.allSettled
  *
- * Promise.allSettled:
- *   - Никогда не бросает ошибку
- *   - Ждёт ВСЕ промисы независимо от успеха/ошибки
- *   - Каждый результат: { status: "fulfilled", value } | { status: "rejected", reason }
- *
- * Используй когда: части данных независимы и частичный результат лучше полного отказа.
- * НЕ используй когда: все данные обязательны (Promise.all + try/catch лучше).
+ * userId "99" → /users/99 вернёт 404, posts/albums — пустые массивы.
+ * Частичный UI лучше, чем белый экран от Promise.all.
  */
 export async function resilientProfile(userId: string) {
-  const [userResult, postsResult, followersResult] = await Promise.allSettled([
+  const [userResult, postsResult, statsResult] = await Promise.allSettled([
     fetchUserProfile(userId),
     fetchUserPosts(userId),
-    fetchUserFollowers(userId),
+    fetchUserAlbumStats(userId),
   ]);
 
   return {
-    user:      userResult.status === "fulfilled"      ? userResult.value      : null,
-    posts:     postsResult.status === "fulfilled"     ? postsResult.value     : [],
-    followers: followersResult.status === "fulfilled" ? followersResult.value : null,
+    user:       userResult.status === "fulfilled"  ? userResult.value  : null,
+    posts:      postsResult.status === "fulfilled" ? postsResult.value : [],
+    albumStats: statsResult.status === "fulfilled" ? statsResult.value : null,
   };
 }
 
@@ -464,12 +453,12 @@ export function RequestQueueDemo() {
     const queue = createRequestQueue(2); // не более 2 одновременно
 
     const tasks = Array.from({ length: 6 }, (_, i) => {
-      const delay = 300 + Math.random() * 400;
+      const postId = i + 1;
       return queue.add(async () => {
-        addLog(`Задача ${i + 1} запущена (queue: ${queue.size}, running: ${queue.running})`);
-        await new Promise((r) => setTimeout(r, delay));
-        addLog(`Задача ${i + 1} завершена за ${Math.round(delay)}ms`);
-        return i;
+        addLog(`Запрос /posts/${postId} (queue: ${queue.size}, running: ${queue.running})`);
+        const post = await fetchPlaceholderPost(postId);
+        addLog(`Пост #${post.id}: ${post.title.slice(0, 40)}…`);
+        return post;
       });
     });
 
@@ -480,7 +469,7 @@ export function RequestQueueDemo() {
 
   return (
     <div className="p-4 border rounded-lg space-y-3">
-      <h3 className="font-bold text-lg">Request Queue (concurrency = 2)</h3>
+      <h3 className="font-bold text-lg">Request Queue (concurrency = 2, JSONPlaceholder)</h3>
       <button
         onClick={handleRun}
         disabled={isRunning}
