@@ -359,11 +359,150 @@ export interface RequestQueue {
   get running(): number;   // выполняемые сейчас
 }
 
-export function createRequestQueue(concurrency: number): RequestQueue {
+export async function createRequestQueue(concurrency: number, pending: Array<() => Promise<T>> = []): Promise<RequestQueue> {
   // TODO:
   // Hint: храни массив pending задач и счётчик running
+  const results = [];
+  let running = 0;
+  async function worker(): Promise<T> {
+    while (pending.length > 0) {
+      const current = running++;
+      results[current] = await pending[current]();
+    }
+  }
+  await Promise.all(Array.from({length: concurrency}, () => worker()));
   // После завершения задачи — запускай следующую из pending
-  throw new Error("Not implemented");
+  return {
+    add:<T> (fn: () => Promise<T>): Promise<T> => {
+      pending.push(fn);
+      return worker();
+    },
+    size: pending.length,
+    running: running,
+  };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// РАБОЧАЯ РЕАЛИЗАЦИЯ (эталон для сравнения с версией выше)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Внутренняя «упаковка» одной задачи в очереди.
+ *
+ * Почему не храним просто `fn: () => Promise<T>`?
+ * — Каждый вызов add() должен вернуть СВОЙ Promise<T> конкретному вызывающему.
+ * — Когда воркер выполнит fn, нужно вызвать resolve именно того промиса,
+ *   который был создан в том вызове add(). Поэтому кладём fn вместе с resolve/reject.
+ *
+ * unknown вместо T — потому что в одном массиве pending лежат задачи
+ * с РАЗНЫМИ типами результата (Post, number, User…).
+ * Дженерик <T> живёт только на уровне метода add(), не на всей очереди.
+ */
+type QueueTask = {
+  run: () => Promise<unknown>;
+  resolve: (value: unknown) => void;
+  reject: (reason: unknown) => void;
+};
+
+/**
+ * Рабочая версия createRequestQueue.
+ *
+ * Ключевые отличия от нерабочей реализации выше:
+ *   1. Синхронная функция — очередь доступна сразу, не после await
+ *   2. Нет createRequestQueue<T> — дженерик только у add<T>
+ *   3. pump() запускает задачи по мере вызовов add(), а не один раз при старте
+ *   4. size/running — геттеры, а не снимки значений
+ */
+export function createRequestQueueSolution(concurrency: number): RequestQueue {
+  // Очередь ожидающих задач (FIFO — первая добавленная выполнится первой)
+  const pending: QueueTask[] = [];
+
+  // Сколько задач выполняется прямо сейчас (0 … concurrency)
+  let running = 0;
+
+  /**
+   * pump («насос») — сердце очереди.
+   *
+   * Вызывается:
+   *   - после каждого add() — вдруг есть свободный слот
+   *   - после завершения задачи (в finally) — слот освободился
+   *
+   * Логика: пока running < concurrency И есть задачи в pending —
+   *         забираем следующую и запускаем.
+   *
+   * Почему while, а не if?
+   * — Если concurrency=3 и в очереди 5 задач, а running=0,
+   *   за один вызов pump() можно запустить сразу 3 задачи.
+   */
+  function pump(): void {
+    while (running < concurrency && pending.length > 0) {
+      // shift() — берём ПЕРВУЮ задачу (очередь, не стек)
+      const task = pending.shift()!;
+
+      // Занимаем один слот параллелизма
+      running++;
+
+      // Запускаем задачу асинхронно (не блокируем pump)
+      void (async () => {
+        try {
+          // Выполняем переданную пользователем функцию
+          const result = await task.run();
+
+          // Успех → резолвим промис, который add() вернул вызывающему
+          task.resolve(result);
+        } catch (error) {
+          // Ошибка fetch/логики → реджектим тот же промис
+          task.reject(error);
+        } finally {
+          // Слот освободился — уменьшаем счётчик
+          running--;
+
+          // Пробуем запустить следующую задачу из очереди
+          pump();
+        }
+      })();
+    }
+  }
+
+  return {
+    /**
+     * add<T> — единственное место с дженериком.
+     *
+     * T выводится из fn:
+     *   queue.add(() => fetchPost(1))  →  Promise<Post>
+     *   queue.add(() => Promise.resolve(42))  →  Promise<number>
+     *
+     * Каждый вызов add создаёт НОВЫЙ Promise<T> и кладёт задачу в pending.
+     * pump() подхватит её, когда появится свободный слот.
+     */
+    add<T>(fn: () => Promise<T>): Promise<T> {
+      return new Promise<T>((resolve, reject) => {
+        pending.push({
+          // fn типизирован как T, но в массиве храним как unknown —
+          // соседние задачи могут иметь другой тип результата
+          run: fn as () => Promise<unknown>,
+
+          // resolve тоже приводим: внутри очереди unknown,
+          // снаружи add() обещает конкретный Promise<T>
+          resolve: resolve as (value: unknown) => void,
+          reject,
+        });
+
+        // Новая задача в очереди — пробуем запустить немедленно
+        pump();
+      });
+    },
+
+    // Геттер: всегда актуальное число задач, ожидающих слот
+    get size(): number {
+      return pending.length;
+    },
+
+    // Геттер: сколько задач выполняется прямо сейчас
+    get running(): number {
+      return running;
+    },
+  };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
