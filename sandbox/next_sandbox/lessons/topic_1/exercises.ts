@@ -359,29 +359,6 @@ export interface RequestQueue {
   get running(): number;   // выполняемые сейчас
 }
 
-export async function createRequestQueue(concurrency: number, pending: Array<() => Promise<T>> = []): Promise<RequestQueue> {
-  // TODO:
-  // Hint: храни массив pending задач и счётчик running
-  const results = [];
-  let running = 0;
-  async function worker(): Promise<T> {
-    while (pending.length > 0) {
-      const current = running++;
-      results[current] = await pending[current]();
-    }
-  }
-  await Promise.all(Array.from({length: concurrency}, () => worker()));
-  // После завершения задачи — запускай следующую из pending
-  return {
-    add:<T> (fn: () => Promise<T>): Promise<T> => {
-      pending.push(fn);
-      return worker();
-    },
-    size: pending.length,
-    running: running,
-  };
-}
-
 // ─────────────────────────────────────────────────────────────────────────────
 // РАБОЧАЯ РЕАЛИЗАЦИЯ (эталон для сравнения с версией выше)
 // ─────────────────────────────────────────────────────────────────────────────
