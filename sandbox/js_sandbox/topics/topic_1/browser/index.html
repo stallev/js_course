@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Тема 1 — Event Loop | Упражнения</title>
+  <style>
+    :root {
+      --bg:       #0f172a;
+      --surface:  #1e293b;
+      --border:   #2d3f55;
+      --text:     #e2e8f0;
+      --muted:    #64748b;
+      --accent:   #3b82f6;
+      --green:    #22c55e;
+      --red:      #f87171;
+      --yellow:   #fbbf24;
+      --mono:     'JetBrains Mono', 'Cascadia Code', 'Fira Code', ui-monospace, monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      padding: 2rem 1.5rem;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    /* ── Header ── */
+    .page-header { margin-bottom: 2rem; }
+    .page-header h1 { font-size: 1.4rem; font-weight: 700; }
+    .page-header p  { color: var(--muted); margin-top: 0.25rem; font-size: 0.85rem; }
+    .hint {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-size: 0.75rem; color: var(--muted);
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      border-radius: 6px; padding: 0.3rem 0.7rem; margin-top: 0.75rem;
+    }
+
+    /* ── Section ── */
+    section { margin-bottom: 2rem; }
+    .section-title {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--accent);
+      padding-bottom: 0.4rem; margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── Exercise card ── */
+    .ex {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.1rem;
+      margin-bottom: 0.75rem;
+    }
+    .ex-head {
+      display: flex; align-items: center; flex-wrap: wrap;
+      gap: 0.5rem; margin-bottom: 0.4rem;
+    }
+    .ex-id {
+      font-family: var(--mono); font-size: 0.7rem; font-weight: 600;
+      color: var(--accent); background: rgba(59,130,246,0.12);
+      padding: 0.1rem 0.45rem; border-radius: 4px;
+    }
+    .ex-title { font-weight: 600; font-size: 0.9rem; }
+    .badge-warn {
+      font-size: 0.68rem; color: var(--yellow);
+      background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.25);
+      padding: 0.1rem 0.45rem; border-radius: 4px;
+    }
+    .badge-dep {
+      font-size: 0.68rem; color: var(--muted);
+      background: rgba(100,116,139,0.15); border: 1px solid var(--border);
+      padding: 0.1rem 0.45rem; border-radius: 4px;
+    }
+    .ex-desc {
+      color: var(--muted); font-size: 0.8rem;
+      margin-bottom: 0.6rem; line-height: 1.5;
+    }
+    .ex-desc code {
+      font-family: var(--mono); font-size: 0.78rem;
+      background: rgba(255,255,255,0.06);
+      padding: 0.05rem 0.3rem; border-radius: 3px;
+      color: var(--text);
+    }
+
+    /* ── Actions ── */
+    .ex-actions { display: flex; gap: 0.4rem; align-items: center; }
+    button {
+      cursor: pointer; border: none; outline: none;
+      font-family: var(--mono); font-size: 0.75rem; font-weight: 500;
+      padding: 0.3rem 0.8rem; border-radius: 5px;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    button:hover:not(:disabled) { opacity: 0.85; }
+    button:active:not(:disabled) { transform: scale(0.97); }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-run   { background: var(--accent); color: #fff; }
+    .btn-clear { background: rgba(255,255,255,0.08); color: var(--muted); }
+
+    /* ── Output ── */
+    .output {
+      display: none;
+      font-family: var(--mono); font-size: 0.78rem; line-height: 1.7;
+      background: #080e1a; border: 1px solid var(--border);
+      border-radius: 5px; padding: 0.65rem 0.85rem;
+      margin-top: 0.65rem;
+      white-space: pre-wrap; word-break: break-all;
+      max-height: 260px; overflow-y: auto;
+    }
+    .output.visible { display: block; }
+    .log   { color: var(--text); }
+    .warn  { color: var(--yellow); }
+    .err   { color: var(--red); }
+    .info  { color: var(--muted); font-style: italic; }
+
+    /* ── Scrollbar ── */
+    .output::-webkit-scrollbar { width: 4px; }
+    .output::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <h1>Тема 1 — Event Loop</h1>
+  <p>Упражнения. Вывод отображается здесь и дублируется в DevTools Console (F12).</p>
+  <span class="hint">
+    💡 Сначала запусти <code>npm run ts:watch</code> чтобы tsc автоматически
+    компилировал exercises.ts → exercises.js при каждом сохранении
+  </span>
+</header>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- Раздел 1                                                       -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<section>
+  <h2 class="section-title">Раздел 1 — Предсказание порядка вывода</h2>
+
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">1.1</span>
+      <span class="ex-title">Базовый порядок: Call Stack → Microtask → Macrotask</span>
+    </div>
+    <p class="ex-desc">
+      Запусти и запомни вывод. Почему <code>C</code> появляется раньше <code>B</code>,
+      хотя оба отложены?
+    </p>
+    <div class="ex-actions">
+      <button class="btn-run"   data-fn="predict_1_1">▶ Запустить</button>
+      <button class="btn-clear" data-clear="predict_1_1">✕</button>
+    </div>
+    <pre class="output" id="out-predict_1_1"></pre>
+  </div>
+
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">1.2</span>
+      <span class="ex-title">Вложенный Promise: когда встаёт в очередь вторая .then?</span>
+    </div>
+    <p class="ex-desc">
+      Предскажи вывод до запуска. Почему <code>"2"</code> идёт раньше <code>"3"</code>?
+    </p>
+    <div class="ex-actions">
+      <button class="btn-run"   data-fn="predict_1_2">▶ Запустить</button>
+      <button class="btn-clear" data-clear="predict_1_2">✕</button>
+    </div>
+    <pre class="output" id="out-predict_1_2"></pre>
+  </div>
+
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">1.3</span>
+      <span class="ex-title">async/await: где находится «пауза»?</span>
+    </div>
+    <p class="ex-desc">
+      <code>await</code> приостанавливает только текущую функцию —
+      остальной код не блокируется. Найди точку «паузы».
+    </p>
+    <div class="ex-actions">
+      <button class="btn-run"   data-fn="predict_1_3">▶ Запустить</button>
+      <button class="btn-clear" data-clear="predict_1_3">✕</button>
+    </div>
+    <pre class="output" id="out-predict_1_3"></pre>
+  </div>
+
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">1.4</span>
+      <span class="ex-title">Сложный mix: setTimeout внутри .then и наоборот</span>
+    </div>
+    <p class="ex-desc">
+      Нарисуй состояние обеих очередей на каждом шаге, потом проверь.
+    </p>
+    <div class="ex-actions">
+      <button class="btn-run"   data-fn="predict_1_4">▶ Запустить</button>
+      <button class="btn-clear" data-clear="predict_1_4">✕</button>
+    </div>
+    <pre class="output" id="out-predict_1_4"></pre>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- Раздел 2                                                       -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<section>
+  <h2 class="section-title">Раздел 2 — Реализация утилит</h2>
+
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">2.1</span>
+      <span class="ex-title">delay(ms)</span>
+    </div>
+    <p class="ex-desc">
+      Promise, резолвящийся через <code>ms</code> миллисекунд.
+      Реализуй в <code>exercises.ts</code>, сохрани — tsc скомпилирует автоматически.
+    </p>
+    <div class="ex-actions">
+      <button class="btn-run"   data-fn="run_2_1">▶ Запустить</button>
+      <button class="btn-clear" data-clear="run_2_1">✕</button>
+    </div>
+    <pre class="output" id="out-run_2_1"></pre>
+  </div>
+
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">2.2</span>
+      <span class="ex-title">runSequentially(tasks)</span>
+      <span class="badge-dep">требует delay</span>
+    </div>
+    <p class="ex-desc">
+      Строго по очереди: 3 задачи по 100/50/30ms → результат
+      <code>["a","b","c"]</code>, время ≈ 180ms.
+    </p>
+    <div class="ex-actions">
+      <button class="btn-run"   data-fn="run_2_2">▶ Запустить</button>
+      <button class="btn-clear" data-clear="run_2_2">✕</button>
+    </div>
+    <pre class="output" id="out-run_2_2"></pre>
+  </div>
+
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">2.3</span>
+      <span class="ex-title">runWithConcurrency(tasks, limit)</span>
+      <span class="badge-dep">требует delay</span>
+    </div>
+    <p class="ex-desc">
+      6 задач × 100ms, <code>limit=2</code> → worker pool → время ≈ 300ms
+      (вместо 600ms последовательно).
+    </p>
+    <div class="ex-actions">
+      <button class="btn-run"   data-fn="run_2_3">▶ Запустить</button>
+      <button class="btn-clear" data-clear="run_2_3">✕</button>
+    </div>
+    <pre class="output" id="out-run_2_3"></pre>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- Раздел 3                                                       -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<section>
+  <h2 class="section-title">Раздел 3 — Найди и исправь баг</h2>
+
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">3.1</span>
+      <span class="ex-title">async/await внутри forEach</span>
+    </div>
+    <p class="ex-desc">
+      <code>brokenForEach([1,2,3])</code> возвращает <code>[]</code> — покажет это.
+      Реализуй <code>processIds_sequential</code> и <code>processIds_parallel</code>.
+    </p>
+    <div class="ex-actions">
+      <button class="btn-run"   data-fn="run_3_1">▶ Запустить</button>
+      <button class="btn-clear" data-clear="run_3_1">✕</button>
+    </div>
+    <pre class="output" id="out-run_3_1"></pre>
+  </div>
+
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">3.2</span>
+      <span class="ex-title">Promise.all вместо последовательных await</span>
+      <span class="badge-dep">требует delay</span>
+    </div>
+    <p class="ex-desc">
+      <code>slowDashboard</code> ≈ 900ms →
+      <code>fastDashboard</code> с <code>Promise.all</code> ≈ 400ms.
+    </p>
+    <div class="ex-actions">
+      <button class="btn-run"   data-fn="run_3_2">▶ Запустить</button>
+      <button class="btn-clear" data-clear="run_3_2">✕</button>
+    </div>
+    <pre class="output" id="out-run_3_2"></pre>
+  </div>
+
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">3.3</span>
+      <span class="ex-title">Microtask starvation → safeLoop</span>
+      <span class="badge-warn">⚠ buggyLoop зависнет вкладку!</span>
+    </div>
+    <p class="ex-desc">
+      Реализуй <code>safeLoop</code> через <code>setInterval</code>.
+      Кнопка запускает loop на 1 секунду (5 тиков по 200ms), затем останавливает.
+    </p>
+    <div class="ex-actions">
+      <button class="btn-run"   data-fn="run_3_3">▶ Запустить (1 сек)</button>
+      <button class="btn-clear" data-clear="run_3_3">✕</button>
+    </div>
+    <pre class="output" id="out-run_3_3"></pre>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- Раздел 4                                                       -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<section>
+  <h2 class="section-title">Раздел 4 — Паттерны</h2>
+
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">4.1</span>
+      <span class="ex-title">processInChunks</span>
+    </div>
+    <p class="ex-desc">
+      1000 элементов, чанки по 100. Между чанками — <code>setTimeout(0)</code>:
+      браузер не зависает, UI остаётся отзывчивым.
+    </p>
+    <div class="ex-actions">
+      <button class="btn-run"   data-fn="run_4_1">▶ Запустить</button>
+      <button class="btn-clear" data-clear="run_4_1">✕</button>
+    </div>
+    <pre class="output" id="out-run_4_1"></pre>
+  </div>
+
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">4.2</span>
+      <span class="ex-title">queueMicrotask — устрани Zalgo-антипаттерн</span>
+    </div>
+    <p class="ex-desc">
+      <code>getDataZalgo</code>: callback иногда sync (из кэша), иногда async — непредсказуемо.<br>
+      <code>getDataFixed</code>: всегда async через <code>queueMicrotask</code>.
+    </p>
+    <div class="ex-actions">
+      <button class="btn-run"   data-fn="run_4_2">▶ Запустить</button>
+      <button class="btn-clear" data-clear="run_4_2">✕</button>
+    </div>
+    <pre class="output" id="out-run_4_2"></pre>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- Script                                                         -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<script type="module">
+import * as ex from '../exercises.js';
+
+// ── Console capture ────────────────────────────────────────────────────────
+// activeOutput хранит ссылку на <pre> "текущего" запуска.
+// Все console.log пока activeOutput != null пишутся туда.
+let activeOutput = null;
+
+const _log   = console.log.bind(console);
+const _warn  = console.warn.bind(console);
+const _error = console.error.bind(console);
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function appendToOutput(cls, args) {
+  if (!activeOutput) return;
+  const text = args
+    .map(a => (a !== null && typeof a === 'object') ? JSON.stringify(a) : String(a))
+    .join(' ');
+  const line = document.createElement('span');
+  line.className = cls;
+  line.textContent = text;
+  if (activeOutput.childNodes.length > 0) activeOutput.appendChild(document.createTextNode('\n'));
+  activeOutput.appendChild(line);
+  activeOutput.classList.add('visible');
+  activeOutput.scrollTop = activeOutput.scrollHeight;
+}
+
+console.log   = (...a) => { _log(...a);   appendToOutput('log',  a); };
+console.warn  = (...a) => { _warn(...a);  appendToOutput('warn', a); };
+console.error = (...a) => { _error(...a); appendToOutput('err',  a); };
+
+// ── Runner registry ────────────────────────────────────────────────────────
+// Каждый runner: async функция, вывод идёт через console.log → activeOutput
+const RUNNERS = {
+
+  // Раздел 1 ─────────────────────────────────────────────────────────────
+  predict_1_1() { ex.predict_1_1(); },
+  predict_1_2() { ex.predict_1_2(); },
+  predict_1_3() { return ex.predict_1_3(); },
+  predict_1_4() { ex.predict_1_4(); },
+
+  // Раздел 2 ─────────────────────────────────────────────────────────────
+  async run_2_1() {
+    const t = Date.now();
+    await ex.delay(300);
+    console.log(`delay(300) выполнен за ${Date.now() - t}ms ✓`);
+  },
+
+  async run_2_2() {
+    const tasks = [
+      async () => { await ex.delay(100); return 'a'; },
+      async () => { await ex.delay(50);  return 'b'; },
+      async () => { await ex.delay(30);  return 'c'; },
+    ];
+    const t = Date.now();
+    const result = await ex.runSequentially(tasks);
+    console.log('Результат:', JSON.stringify(result));
+    console.log(`Время: ${Date.now() - t}ms  (ожидается ≈ 180ms)`);
+  },
+
+  async run_2_3() {
+    const tasks = Array.from({ length: 6 }, (_, i) =>
+      async () => { await ex.delay(100); return i; }
+    );
+    const t = Date.now();
+    const result = await ex.runWithConcurrency(tasks, 2);
+    console.log('Результат:', JSON.stringify(result));
+    console.log(`Время: ${Date.now() - t}ms  (ожидается ≈ 300ms)`);
+  },
+
+  // Раздел 3 ─────────────────────────────────────────────────────────────
+  async run_3_1() {
+    const ids = [1, 2, 3];
+
+    const broken = await ex.brokenForEach(ids);
+    console.log('brokenForEach:         ', JSON.stringify(broken), ' ← всегда []');
+
+    const seq = await ex.processIds_sequential(ids);
+    console.log('processIds_sequential: ', JSON.stringify(seq));
+
+    const par = await ex.processIds_parallel(ids);
+    console.log('processIds_parallel:   ', JSON.stringify(par));
+  },
+
+  async run_3_2() {
+    const t1 = Date.now();
+    await ex.slowDashboard('user1');
+    console.log(`slowDashboard:  ${Date.now() - t1}ms  (≈ 900ms)`);
+
+    const t2 = Date.now();
+    await ex.fastDashboard('user1');
+    console.log(`fastDashboard:  ${Date.now() - t2}ms  (≈ 400ms)`);
+  },
+
+  async run_3_3() {
+    let ticks = 0;
+    console.log('Запуск safeLoop на 1 секунду...');
+    const stop = ex.safeLoop(() => {
+      ticks++;
+      console.log(`  tick #${ticks}`);
+    }, 200);
+    await ex.delay(1050);
+    stop();
+    console.log(`Остановлен. Всего тиков: ${ticks}  (ожидается 5)`);
+  },
+
+  // Раздел 4 ─────────────────────────────────────────────────────────────
+  async run_4_1() {
+    const arr = Array.from({ length: 1000 }, (_, i) => i);
+    const t = Date.now();
+    const result = await ex.processInChunks(arr, x => x * 2, 100);
+    console.log(`Обработано ${result.length} элементов за ${Date.now() - t}ms`);
+    console.log('Первые 5:', JSON.stringify(result.slice(0, 5)));
+    console.log('Последние 5:', JSON.stringify(result.slice(-5)));
+  },
+
+  async run_4_2() {
+    // Демонстрация Zalgo
+    let syncFlag = false;
+    ex.getDataZalgo('demo-key', () => { syncFlag = true; });
+    console.log('getDataZalgo (нет в кэше) syncFlag сразу:', syncFlag, ' ← false, async ✓');
+    await ex.delay(20);
+
+    // Второй вызов — из кэша (sync!)
+    syncFlag = false;
+    ex.getDataZalgo('demo-key', () => { syncFlag = true; });
+    console.log('getDataZalgo (из кэша)    syncFlag сразу:', syncFlag, ' ← true, SYNC ❌');
+
+    // Демонстрация исправления
+    let fixedFlag = false;
+    ex.getDataFixed('demo-key', () => { fixedFlag = true; });
+    console.log('getDataFixed (из кэша)    fixedFlag сразу:', fixedFlag, ' ← false, async ✓');
+    await ex.delay(20);
+    console.log('getDataFixed после паузы  fixedFlag:', fixedFlag, ' ← true ✓');
+  },
+};
+
+// ── Button wiring ─────────────────────────────────────────────────────────
+document.querySelectorAll('.btn-run').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const fnName   = btn.dataset.fn;
+    const outputEl = document.getElementById(`out-${fnName}`);
+    const runner   = RUNNERS[fnName];
+
+    if (!runner) {
+      console.error(`Нет runner для: ${fnName}`);
+      return;
+    }
+
+    // Сбросить предыдущий вывод
+    outputEl.textContent = '';
+    outputEl.classList.remove('visible');
+
+    // Показать «выполняется»
+    const infoLine = document.createElement('span');
+    infoLine.className = 'info';
+    infoLine.textContent = '⏳ Выполняется...';
+    outputEl.appendChild(infoLine);
+    outputEl.classList.add('visible');
+
+    // Дать браузеру перерисовать страницу
+    await new Promise(r => setTimeout(r, 0));
+
+    // Очистить «выполняется» и начать захват
+    outputEl.textContent = '';
+    activeOutput = outputEl;
+
+    btn.disabled = true;
+
+    try {
+      await runner();
+      // Ждём macrotask-коллбэки (setTimeout(0) из predict-функций и т.д.)
+      await new Promise(r => setTimeout(r, 150));
+    } catch (err) {
+      appendToOutput('err', [`❌ ${err.message}`]);
+    } finally {
+      activeOutput = null;
+      btn.disabled = false;
+    }
+
+    if (!outputEl.hasChildNodes()) {
+      const done = document.createElement('span');
+      done.className = 'info';
+      done.textContent = '✓ Завершено (нет вывода)';
+      outputEl.appendChild(done);
+      outputEl.classList.add('visible');
+    }
+  });
+});
+
+document.querySelectorAll('.btn-clear').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const outputEl = document.getElementById(`out-${btn.dataset.clear}`);
+    outputEl.textContent = '';
+    outputEl.classList.remove('visible');
+  });
+});
+</script>
+</body>
+</html>

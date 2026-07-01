@@ -6,61 +6,92 @@
  * Каждое задание — реальный паттерн, встречающийся в production-коде.
  *
  * Решения: sandbox/next_sandbox/lessons/topic_1/solutions.tsx
+ * Data API: sandbox/next_sandbox/lessons/topic_1/data-api.ts
+ *
+ * Разделы 1 и 4.2 требуют сети (JSONPlaceholder).
  */
+
+import {
+  fetchUserProfile,
+  fetchUserPosts,
+  fetchUserAlbumStats,
+  fetchPlaceholderPost,
+  PLACEHOLDER_API,
+  type PlaceholderUser,
+  type PlaceholderPost,
+  type UserAlbumStats,
+} from "./data-api";
+
+export {
+  fetchUserProfile,
+  fetchUserPosts,
+  fetchUserAlbumStats,
+  fetchPlaceholderPost,
+  PLACEHOLDER_API,
+};
+export type { PlaceholderUser, PlaceholderPost, UserAlbumStats };
 
 // ─────────────────────────────────────────────────────────────────────────────
 // РАЗДЕЛ 1 — Promise.all в Server Components (Next.js App Router)
 //
-// В Next.js Server Components данные можно фетчить прямо в компоненте.
-// Задача — делать это эффективно.
+// В Server Component данные фетчатся на сервере — тот же Event Loop (Node.js),
+// те же правила: последовательные await суммируют latency, Promise.all — max.
+//
+// Источник данных: JSONPlaceholder (см. data-api.ts).
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
  * Задание 1.1 — Параллельный fetch в Server Component
  *
- * Ниже — функция, имитирующая получение данных для страницы профиля.
- * BUG: данные загружаются последовательно (~850ms).
+ * Страница профиля `/users/[id]` загружает три независимых ресурса:
+ *   - GET /users/:id           → профиль
+ *   - GET /posts?userId=:id    → посты пользователя
+ *   - GET /albums?userId=:id   → статистика (albumCount)
+ *
+ * BUG в slowProfile: три await подряд — запросы идут последовательно.
+ * Время ≈ t₁ + t₂ + t₃ (сумма сетевых задержек).
  *
  * Вопросы:
- *   1. Какое общее время выполнения slowProfile? Объясни.
- *   2. Перепиши fastProfile с Promise.all → время ≈ max из трёх запросов.
- *   3. Что произойдёт если один из запросов упадёт с ошибкой в Promise.all?
- *      Как изменить код чтобы остальные данные всё равно вернулись?
+ *   1. Запусти slowProfile("1") с замером Date.now(). Сравни с fastProfile.
+ *      Почему параллельный вариант быстрее?
+ *   2. Перепиши fastProfile с Promise.all → время ≈ max(t₁, t₂, t₃).
+ *   3. Что произойдёт если один запрос упадёт (например userId "99") в Promise.all?
+ *      Реализуй resilientProfile с Promise.allSettled → частичный результат.
+ *
+ * Контекст (Server Component):
+ *   export default async function ProfilePage({ params }: { params: { id: string } }) {
+ *     const { user, posts, albumStats } = await fastProfile(params.id);
+ *     return <ProfileView user={user} posts={posts} stats={albumStats} />;
+ *   }
  */
-const mockDelay = (ms: number) =>
-  new Promise<void>((r) => setTimeout(r, ms));
-
-export async function fetchUserProfile(id: string) {
-  await mockDelay(300);
-  return { id, name: "Alice", email: "alice@example.com" };
-}
-export async function fetchUserPosts(userId: string) {
-  await mockDelay(400);
-  return [{ id: 1, title: "Hello World" }, { id: 2, title: "Second Post" }];
-}
-export async function fetchUserFollowers(userId: string) {
-  await mockDelay(150);
-  return { count: 42 };
-}
-
-// BUG: последовательно ≈ 300 + 400 + 150 = 850ms
+// BUG: последовательно — каждый fetch ждёт завершения предыдущего
 export async function slowProfile(userId: string) {
-  const user      = await fetchUserProfile(userId);
-  const posts     = await fetchUserPosts(userId);
-  const followers = await fetchUserFollowers(userId);
-  return { user, posts, followers };
+  const user       = await fetchUserProfile(userId);
+  const posts      = await fetchUserPosts(userId);
+  const albumStats = await fetchUserAlbumStats(userId);
+  return { user, posts, albumStats };
 }
 
-// TODO 1: переписать с Promise.all → ≈ 400ms
+// TODO 1: Promise.all — три запроса к JSONPlaceholder стартуют одновременно
 export async function fastProfile(userId: string) {
-  throw new Error("Not implemented");
+  const [user, posts, albumStats] = await Promise.all([fetchUserProfile(userId), fetchUserPosts(userId), fetchUserAlbumStats(userId)]);
+  return { user, posts, albumStats };
 }
 
-// TODO 2: переписать с Promise.allSettled → частичный результат при ошибке
+// TODO 2: Promise.allSettled — при ошибке одного ресурса верни null/[] для остальных
+// Проверка: resilientProfile("99") — user 404, posts/albums могут быть пустыми
 export async function resilientProfile(userId: string) {
-  // Hint: Promise.allSettled не бросает при ошибке отдельного запроса
-  // Каждый результат: { status: "fulfilled", value } | { status: "rejected", reason }
-  throw new Error("Not implemented");
+  const [userResult, postsResult, statsResult] = await Promise.allSettled([
+    fetchUserProfile(userId),
+    fetchUserPosts(userId),
+    fetchUserAlbumStats(userId),
+  ]);
+
+  return {
+    user:       userResult.status === "fulfilled"  ? userResult.value  : null,
+    posts:      postsResult.status === "fulfilled" ? postsResult.value : [],
+    albumStats: statsResult.status === "fulfilled" ? statsResult.value : null,
+  };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -251,8 +282,13 @@ export function batchingExplained(): void {
  *   search("hel");    // таймер сбрасывается
  *   // через 300ms: "Поиск: hel"  — только один вызов
  *
- * В React:
- *   const debouncedSearch = useCallback(debounce(handleSearch, 300), []);
+ * В React (поиск по JSONPlaceholder):
+ *   const debouncedSearch = useCallback(
+ *     debounce((query: string) => {
+ *       fetch(`${PLACEHOLDER_API}/users?name_like=${query}`).then(...);
+ *     }, 300),
+ *     []
+ *   );
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function debounce<T extends (...args: any[]) => void>(
@@ -301,8 +337,8 @@ export async function processItemsWithProgress<T, R>(
 /**
  * Задание 4.2 — Очередь запросов с ограничением параллелизма
  *
- * В production часто нужно ограничить количество одновременных API-запросов
- * чтобы не перегрузить сервер (rate limiting).
+ * В production ограничивают число одновременных запросов к API (rate limiting).
+ * В задании используй JSONPlaceholder — те же fetch, что в Разделе 1.
  *
  * Реализуй createRequestQueue(concurrency):
  *   - .add(fn) добавляет задачу в очередь и возвращает Promise результата
@@ -310,10 +346,12 @@ export async function processItemsWithProgress<T, R>(
  *
  * Пример:
  *   const queue = createRequestQueue(2);
- *   const p1 = queue.add(() => fetch('/api/1'));
- *   const p2 = queue.add(() => fetch('/api/2'));
- *   const p3 = queue.add(() => fetch('/api/3')); // ждёт пока p1 или p2 завершится
+ *   const p1 = queue.add(() => fetchPlaceholderPost(1));
+ *   const p2 = queue.add(() => fetchPlaceholderPost(2));
+ *   const p3 = queue.add(() => fetchPlaceholderPost(3)); // ждёт слот
  *   await Promise.all([p1, p2, p3]);
+ *
+ * В Client Component: очередь не даёт открыть 50 вкладок fetch одновременно.
  */
 export interface RequestQueue {
   add<T>(fn: () => Promise<T>): Promise<T>;
@@ -321,11 +359,127 @@ export interface RequestQueue {
   get running(): number;   // выполняемые сейчас
 }
 
-export function createRequestQueue(concurrency: number): RequestQueue {
-  // TODO:
-  // Hint: храни массив pending задач и счётчик running
-  // После завершения задачи — запускай следующую из pending
-  throw new Error("Not implemented");
+// ─────────────────────────────────────────────────────────────────────────────
+// РАБОЧАЯ РЕАЛИЗАЦИЯ (эталон для сравнения с версией выше)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Внутренняя «упаковка» одной задачи в очереди.
+ *
+ * Почему не храним просто `fn: () => Promise<T>`?
+ * — Каждый вызов add() должен вернуть СВОЙ Promise<T> конкретному вызывающему.
+ * — Когда воркер выполнит fn, нужно вызвать resolve именно того промиса,
+ *   который был создан в том вызове add(). Поэтому кладём fn вместе с resolve/reject.
+ *
+ * unknown вместо T — потому что в одном массиве pending лежат задачи
+ * с РАЗНЫМИ типами результата (Post, number, User…).
+ * Дженерик <T> живёт только на уровне метода add(), не на всей очереди.
+ */
+type QueueTask = {
+  run: () => Promise<unknown>;
+  resolve: (value: unknown) => void;
+  reject: (reason: unknown) => void;
+};
+
+/**
+ * Рабочая версия createRequestQueue.
+ *
+ * Ключевые отличия от нерабочей реализации выше:
+ *   1. Синхронная функция — очередь доступна сразу, не после await
+ *   2. Нет createRequestQueue<T> — дженерик только у add<T>
+ *   3. pump() запускает задачи по мере вызовов add(), а не один раз при старте
+ *   4. size/running — геттеры, а не снимки значений
+ */
+export function createRequestQueueSolution(concurrency: number): RequestQueue {
+  // Очередь ожидающих задач (FIFO — первая добавленная выполнится первой)
+  const pending: QueueTask[] = [];
+
+  // Сколько задач выполняется прямо сейчас (0 … concurrency)
+  let running = 0;
+
+  /**
+   * pump («насос») — сердце очереди.
+   *
+   * Вызывается:
+   *   - после каждого add() — вдруг есть свободный слот
+   *   - после завершения задачи (в finally) — слот освободился
+   *
+   * Логика: пока running < concurrency И есть задачи в pending —
+   *         забираем следующую и запускаем.
+   *
+   * Почему while, а не if?
+   * — Если concurrency=3 и в очереди 5 задач, а running=0,
+   *   за один вызов pump() можно запустить сразу 3 задачи.
+   */
+  function pump(): void {
+    while (running < concurrency && pending.length > 0) {
+      // shift() — берём ПЕРВУЮ задачу (очередь, не стек)
+      const task = pending.shift()!;
+
+      // Занимаем один слот параллелизма
+      running++;
+
+      // Запускаем задачу асинхронно (не блокируем pump)
+      void (async () => {
+        try {
+          // Выполняем переданную пользователем функцию
+          const result = await task.run();
+
+          // Успех → резолвим промис, который add() вернул вызывающему
+          task.resolve(result);
+        } catch (error) {
+          // Ошибка fetch/логики → реджектим тот же промис
+          task.reject(error);
+        } finally {
+          // Слот освободился — уменьшаем счётчик
+          running--;
+
+          // Пробуем запустить следующую задачу из очереди
+          pump();
+        }
+      })();
+    }
+  }
+
+  return {
+    /**
+     * add<T> — единственное место с дженериком.
+     *
+     * T выводится из fn:
+     *   queue.add(() => fetchPost(1))  →  Promise<Post>
+     *   queue.add(() => Promise.resolve(42))  →  Promise<number>
+     *
+     * Каждый вызов add создаёт НОВЫЙ Promise<T> и кладёт задачу в pending.
+     * pump() подхватит её, когда появится свободный слот.
+     */
+    add<T>(fn: () => Promise<T>): Promise<T> {
+      return new Promise<T>((resolve, reject) => {
+        pending.push({
+          // fn типизирован как T, но в массиве храним как unknown —
+          // соседние задачи могут иметь другой тип результата
+          run: fn as () => Promise<unknown>,
+
+          // resolve тоже приводим: внутри очереди unknown,
+          // снаружи add() обещает конкретный Promise<T>
+          resolve: resolve as (value: unknown) => void,
+          reject,
+        });
+
+        // Новая задача в очереди — пробуем запустить немедленно
+        pump();
+      });
+    },
+
+    // Геттер: всегда актуальное число задач, ожидающих слот
+    get size(): number {
+      return pending.length;
+    },
+
+    // Геттер: сколько задач выполняется прямо сейчас
+    get running(): number {
+      return running;
+    },
+  };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -334,16 +488,21 @@ export function createRequestQueue(concurrency: number): RequestQueue {
 async function main(): Promise<void> {
   const pause = (ms = 30) => new Promise<void>((r) => setTimeout(r, ms));
 
-  // --- Раздел 1 ---
+  // --- Раздел 1 (нужна сеть → JSONPlaceholder) ---
   console.log("═══ 1.1  slowProfile  ══════════════════════════════");
+  console.log(`API: ${PLACEHOLDER_API}`);
   const t1 = Date.now();
-  await slowProfile("user1");
-  console.log(`slow: ${Date.now() - t1}ms`); // ~850ms
+  const slow = await slowProfile("1");
+  console.log(`slow: ${Date.now() - t1}ms`, slow.user.name, `posts: ${slow.posts.length}`);
 
   // console.log("\n═══ 1.1  fastProfile  ══════════════════════════════");
   // const t2 = Date.now();
-  // await fastProfile("user1");
-  // console.log(`fast: ${Date.now() - t2}ms`); // ~400ms
+  // const fast = await fastProfile("1");
+  // console.log(`fast: ${Date.now() - t2}ms`, fast.user.name); // обычно быстрее slow
+
+  // console.log("\n═══ 1.2  resilientProfile (userId=99)  ═══════════");
+  // const partial = await resilientProfile("99");
+  // console.log(partial); // user: null, posts/albumStats — по факту API
 
   // --- Раздел 2 ---
   console.log("\n═══ 2.1  staleClosure_demo  ════════════════════════");

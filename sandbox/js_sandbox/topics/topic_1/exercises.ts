@@ -71,6 +71,7 @@ export async function predict_1_3(): Promise<void> {
  * // Вывод: ?
  *
  * Нарисуй в комментарии состояние очередей на каждом шаге.
+ * 1-6-4-2-3-5
  */
 export function predict_1_4(): void {
   console.log("1");
@@ -103,7 +104,7 @@ export function predict_1_4(): void {
  */
 export function delay(ms: number): Promise<void> {
   // TODO: реализуй
-  throw new Error("Not implemented");
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**
@@ -122,11 +123,16 @@ export function delay(ms: number): Promise<void> {
  *
  * Подсказка: for...of + await  (не Promise.all — он параллельный!)
  */
+
 export async function runSequentially<T>(
   tasks: Array<() => Promise<T>>
 ): Promise<T[]> {
+  const results: T[] = [];
+  for (const task of tasks) {
+    results.push(await task());
+  }
   // TODO: реализуй
-  throw new Error("Not implemented");
+  return results;
 }
 
 /**
@@ -150,7 +156,16 @@ export async function runWithConcurrency<T>(
   limit: number
 ): Promise<T[]> {
   // TODO: реализуй worker pool
-  throw new Error("Not implemented");
+  const results: T[] = [];
+  let index = 0;
+  async function worker(): Promise<void> {
+    while (index < tasks.length) {
+      const current = index++;
+      results[current] = await tasks[current]();
+    }
+  }
+  await Promise.all(Array.from({ length: limit }, () => worker()));
+  return results;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -188,12 +203,16 @@ export async function processIds_sequential(
   ids: number[]
 ): Promise<number[]> {
   // TODO: for...of + await → результаты в порядке ids
-  throw new Error("Not implemented");
+  const results: number[] = [];
+  for (const id of ids) {
+    results.push(await fetchValue(id));
+  }
+  return results;
 }
 
 export async function processIds_parallel(ids: number[]): Promise<number[]> {
   // TODO: Promise.all + .map → параллельно, результаты в порядке ids
-  throw new Error("Not implemented");
+  return Promise.all(ids.map(async (id) => await fetchValue(id)));
 }
 
 /**
@@ -223,7 +242,7 @@ export async function slowDashboard(userId: string): Promise<Dashboard> {
 
 export async function fastDashboard(userId: string): Promise<Dashboard> {
   // TODO: Promise.all → ≈ 400ms
-  throw new Error("Not implemented");
+  return await Promise.all([fetchUser(userId), fetchPosts(userId), fetchStats(userId)]).then(([user, posts, stats]) => ({ user, posts, stats }));
 }
 
 /**
@@ -253,7 +272,23 @@ export function safeLoop(
 ): () => void {
   // TODO: реализуй через setInterval или рекурсивный setTimeout
   // Верни функцию-отмены (stop), которая прекратит выполнение
-  throw new Error("Not implemented");
+  // const id = setInterval(callback, intervalMs);
+  // return () => clearInterval(id);
+  let timerId: ReturnType<typeof setTimeout>;
+  let isRunning = true;
+  function loop() {
+    if (isRunning) {
+      timerId = setTimeout(loop, intervalMs);
+      callback();
+    }
+  }
+
+  loop();
+
+  return () => {
+    isRunning = false;
+    clearTimeout(timerId);
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -283,7 +318,16 @@ export async function processInChunks<T, R>(
   // 2. Разбей на куски: for (let i = 0; i < arr.length; i += chunkSize)
   // 3. Обработай кусок синхронно: chunk.map(transform)
   // 4. Уступи управление: await new Promise(r => setTimeout(r, 0))
-  throw new Error("Not implemented");
+  const results: R[] = [];
+  for (let i = 0; i < arr.length; i += chunkSize) {
+    const chunk = arr.slice(i, i + chunkSize);
+    for (const item of chunk) {
+      results.push(transform(item));
+    }
+    console.log(results);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  }
+  return results;
 }
 
 /**
@@ -309,7 +353,8 @@ export function getDataZalgo(
   callback: (value: number) => void
 ): void {
   if (cache.has(key)) {
-    callback(cache.get(key)!); // BUG: синхронно!
+    // callback(cache.get(key)!); // BUG: синхронно!
+    queueMicrotask(() => callback(cache.get(key)!));
   } else {
     Promise.resolve(Math.random() * 100).then((value) => {
       cache.set(key, value);
@@ -324,7 +369,7 @@ export function getDataFixed(
 ): void {
   if (cache.has(key)) {
     // TODO: используй queueMicrotask чтобы callback всегда был async
-    throw new Error("Not implemented");
+    queueMicrotask(() => callback(cache.get(key)!));
   } else {
     Promise.resolve(Math.random() * 100).then((value) => {
       cache.set(key, value);
@@ -389,4 +434,7 @@ async function main(): Promise<void> {
   // console.log("\n═══ 4.1 processInChunks length:", chunks.length); // 500
 }
 
-main().catch(console.error);
+// Запускаем main() только в Node.js (не в браузере)
+if (typeof window === "undefined") {
+  main().catch(console.error);
+}
