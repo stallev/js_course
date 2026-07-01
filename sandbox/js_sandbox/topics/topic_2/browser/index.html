@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Тема 2 — Hoisting и TDZ | Упражнения</title>
+  <style>
+    :root {
+      --bg:       #0f172a;
+      --surface:  #1e293b;
+      --border:   #2d3f55;
+      --text:     #e2e8f0;
+      --muted:    #64748b;
+      --accent:   #8b5cf6;
+      --green:    #22c55e;
+      --red:      #f87171;
+      --yellow:   #fbbf24;
+      --mono:     'JetBrains Mono', 'Cascadia Code', 'Fira Code', ui-monospace, monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      padding: 2rem 1.5rem;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .page-header { margin-bottom: 2rem; }
+    .page-header h1 { font-size: 1.4rem; font-weight: 700; }
+    .page-header p  { color: var(--muted); margin-top: 0.25rem; font-size: 0.85rem; }
+    .hint {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-size: 0.75rem; color: var(--muted);
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      border-radius: 6px; padding: 0.3rem 0.7rem; margin-top: 0.75rem;
+    }
+
+    section { margin-bottom: 2rem; }
+    .section-title {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--accent);
+      padding-bottom: 0.4rem; margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .ex {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.1rem;
+      margin-bottom: 0.75rem;
+    }
+    .ex-head {
+      display: flex; align-items: center; flex-wrap: wrap;
+      gap: 0.5rem; margin-bottom: 0.4rem;
+    }
+    .ex-id {
+      font-family: var(--mono); font-size: 0.7rem; font-weight: 600;
+      color: var(--accent); background: rgba(139,92,246,0.15);
+      padding: 0.1rem 0.45rem; border-radius: 4px;
+    }
+    .ex-title { font-weight: 600; font-size: 0.9rem; }
+    .badge-warn {
+      font-size: 0.68rem; color: var(--yellow);
+      background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.25);
+      padding: 0.1rem 0.45rem; border-radius: 4px;
+    }
+    .badge-dep {
+      font-size: 0.68rem; color: var(--muted);
+      background: rgba(100,116,139,0.15); border: 1px solid var(--border);
+      padding: 0.1rem 0.45rem; border-radius: 4px;
+    }
+    .ex-desc {
+      color: var(--muted); font-size: 0.8rem;
+      margin-bottom: 0.6rem; line-height: 1.5;
+    }
+    .ex-desc code {
+      font-family: var(--mono); font-size: 0.78rem;
+      background: rgba(255,255,255,0.06);
+      padding: 0.05rem 0.3rem; border-radius: 3px;
+      color: var(--text);
+    }
+
+    .ex-actions { display: flex; gap: 0.4rem; align-items: center; }
+    button {
+      cursor: pointer; border: none; outline: none;
+      font-family: var(--mono); font-size: 0.75rem; font-weight: 500;
+      padding: 0.3rem 0.8rem; border-radius: 5px;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    button:hover:not(:disabled) { opacity: 0.85; }
+    button:active:not(:disabled) { transform: scale(0.97); }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-run   { background: var(--accent); color: #fff; }
+    .btn-clear { background: rgba(255,255,255,0.08); color: var(--muted); }
+
+    .output {
+      display: none;
+      font-family: var(--mono); font-size: 0.78rem; line-height: 1.7;
+      background: #080e1a; border: 1px solid var(--border);
+      border-radius: 5px; padding: 0.65rem 0.85rem;
+      margin-top: 0.65rem;
+      white-space: pre-wrap; word-break: break-all;
+      max-height: 260px; overflow-y: auto;
+    }
+    .output.visible { display: block; }
+    .log   { color: var(--text); }
+    .warn  { color: var(--yellow); }
+    .err   { color: var(--red); }
+    .info  { color: var(--muted); font-style: italic; }
+
+    .output::-webkit-scrollbar { width: 4px; }
+    .output::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <h1>Тема 2 — Hoisting и TDZ</h1>
+  <p>Упражнения. Вывод отображается здесь и дублируется в DevTools Console (F12).</p>
+  <span class="hint">
+    💡 Сначала запусти <code>npm run ts:watch</code> чтобы tsc автоматически
+    компилировал exercises.ts → exercises.js при каждом сохранении
+  </span>
+</header>
+
+<section>
+  <h2 class="section-title">Раздел 1 — Предсказание вывода и ошибок</h2>
+
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">1.1</span>
+      <span class="ex-title">var hoists с undefined, let — в TDZ</span>
+    </div>
+    <p class="ex-desc">
+      Почему <code>typeof a</code> не бросает ошибку, а обращение к <code>b</code> — ReferenceError?
+    </p>
+    <div class="ex-actions">
+      <button class="btn-run"   data-fn="predict_1_1">▶ Запустить</button>
+      <button class="btn-clear" data-clear="predict_1_1">✕</button>
+    </div>
+    <pre class="output" id="out-predict_1_1"></pre>
+  </div>
+
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">1.2</span>
+      <span class="ex-title">Function Declaration vs Expression</span>
+    </div>
+    <p class="ex-desc">
+      <code>decl()</code> до объявления работает. <code>expr()</code> — нет. Почему?
+    </p>
+    <div class="ex-actions">
+      <button class="btn-run"   data-fn="predict_1_2">▶ Запустить</button>
+      <button class="btn-clear" data-clear="predict_1_2">✕</button>
+    </div>
+    <pre class="output" id="out-predict_1_2"></pre>
+  </div>
+
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">1.3</span>
+      <span class="ex-title">var shadowing внутри функции</span>
+    </div>
+    <p class="ex-desc">
+      Классический вопрос с интервью: что выведут два <code>console.log</code> внутри <code>test()</code>?
+    </p>
+    <div class="ex-actions">
+      <button class="btn-run"   data-fn="predict_1_3">▶ Запустить</button>
+      <button class="btn-clear" data-clear="predict_1_3">✕</button>
+    </div>
+    <pre class="output" id="out-predict_1_3"></pre>
+  </div>
+
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">1.4</span>
+      <span class="ex-title">var vs let в цикле + setTimeout</span>
+    </div>
+    <p class="ex-desc">
+      Сначала предскажи вывод, потом запусти оба варианта и сравни.
+    </p>
+    <div class="ex-actions">
+      <button class="btn-run"   data-fn="predict_1_4">▶ Запустить оба</button>
+      <button class="btn-clear" data-clear="predict_1_4">✕</button>
+    </div>
+    <pre class="output" id="out-predict_1_4"></pre>
+  </div>
+</section>
+
+<section>
+  <h2 class="section-title">Раздел 2 — Реализация утилит</h2>
+
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">2.1</span>
+      <span class="ex-title">createIndexHandlers_let</span>
+    </div>
+    <p class="ex-desc">
+      Реализуй в <code>exercises.ts</code>. Сравни <code>var</code> (все 3) и <code>let</code> (0, 1, 2).
+    </p>
+    <div class="ex-actions">
+      <button class="btn-run"   data-fn="run_2_1">▶ Запустить</button>
+      <button class="btn-clear" data-clear="run_2_1">✕</button>
+    </div>
+    <pre class="output" id="out-run_2_1"></pre>
+  </div>
+
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">2.2</span>
+      <span class="ex-title">tryAccess</span>
+    </div>
+    <p class="ex-desc">
+      Утилита try/catch для демонстрации TDZ без падения всего скрипта.
+    </p>
+    <div class="ex-actions">
+      <button class="btn-run"   data-fn="run_2_2">▶ Запустить</button>
+      <button class="btn-clear" data-clear="run_2_2">✕</button>
+    </div>
+    <pre class="output" id="out-run_2_2"></pre>
+  </div>
+
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">2.3</span>
+      <span class="ex-title">runPipeline (function hoisting)</span>
+    </div>
+    <p class="ex-desc">
+      <code>runPipeline("  hello  ")</code> → <code>"HELLO!"</code>. Helpers объявлены ниже main.
+    </p>
+    <div class="ex-actions">
+      <button class="btn-run"   data-fn="run_2_3">▶ Запустить</button>
+      <button class="btn-clear" data-clear="run_2_3">✕</button>
+    </div>
+    <pre class="output" id="out-run_2_3"></pre>
+  </div>
+</section>
+
+<section>
+  <h2 class="section-title">Раздел 3 — Найди и исправь баг</h2>
+
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">3.1</span>
+      <span class="ex-title">createButtons — var в цикле</span>
+    </div>
+    <p class="ex-desc">
+      BUG: пять раз <code>5</code>. FIX: <code>0, 1, 2, 3, 4</code>.
+    </p>
+    <div class="ex-actions">
+      <button class="btn-run"   data-fn="run_3_1">▶ Запустить</button>
+      <button class="btn-clear" data-clear="run_3_1">✕</button>
+    </div>
+    <pre class="output" id="out-run_3_1"></pre>
+  </div>
+
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">3.2</span>
+      <span class="ex-title">initApp — config до объявления</span>
+    </div>
+    <p class="ex-desc">
+      BUG: <code>Cannot read properties of undefined</code>. FIX: const до использования.
+    </p>
+    <div class="ex-actions">
+      <button class="btn-run"   data-fn="run_3_2">▶ Запустить</button>
+      <button class="btn-clear" data-clear="run_3_2">✕</button>
+    </div>
+    <pre class="output" id="out-run_3_2"></pre>
+  </div>
+
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">3.3</span>
+      <span class="ex-title">processUser — block scope</span>
+    </div>
+    <p class="ex-desc">
+      BUG: <code>sessionId is not defined</code>. FIX: объявление на уровне функции.
+    </p>
+    <div class="ex-actions">
+      <button class="btn-run"   data-fn="run_3_3">▶ Запустить</button>
+      <button class="btn-clear" data-clear="run_3_3">✕</button>
+    </div>
+    <pre class="output" id="out-run_3_3"></pre>
+  </div>
+
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">3.4</span>
+      <span class="ex-title">greetUser — expression до объявления</span>
+    </div>
+    <p class="ex-desc">
+      BUG: вызов <code>greet</code> до <code>const greet</code>. FIX: function declaration.
+    </p>
+    <div class="ex-actions">
+      <button class="btn-run"   data-fn="run_3_4">▶ Запустить</button>
+      <button class="btn-clear" data-clear="run_3_4">✕</button>
+    </div>
+    <pre class="output" id="out-run_3_4"></pre>
+  </div>
+</section>
+
+<section>
+  <h2 class="section-title">Раздел 4 — Паттерны</h2>
+
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">4.1</span>
+      <span class="ex-title">createLazyGetter</span>
+    </div>
+    <p class="ex-desc">
+      Ленивая инициализация: initializer вызывается ровно один раз.
+    </p>
+    <div class="ex-actions">
+      <button class="btn-run"   data-fn="run_4_1">▶ Запустить</button>
+      <button class="btn-clear" data-clear="run_4_1">✕</button>
+    </div>
+    <pre class="output" id="out-run_4_1"></pre>
+  </div>
+
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">4.2</span>
+      <span class="ex-title">assertInitialized</span>
+    </div>
+    <p class="ex-desc">
+      Runtime-guard: <code>undefined</code> → ReferenceError с понятным именем переменной.
+    </p>
+    <div class="ex-actions">
+      <button class="btn-run"   data-fn="run_4_2">▶ Запустить</button>
+      <button class="btn-clear" data-clear="run_4_2">✕</button>
+    </div>
+    <pre class="output" id="out-run_4_2"></pre>
+  </div>
+</section>
+
+<script type="module">
+import * as ex from '../exercises.js';
+
+let activeOutput = null;
+
+const _log   = console.log.bind(console);
+const _warn  = console.warn.bind(console);
+const _error = console.error.bind(console);
+
+function appendToOutput(cls, args) {
+  if (!activeOutput) return;
+  const text = args
+    .map(a => (a !== null && typeof a === 'object') ? JSON.stringify(a) : String(a))
+    .join(' ');
+  const line = document.createElement('span');
+  line.className = cls;
+  line.textContent = text;
+  if (activeOutput.childNodes.length > 0) activeOutput.appendChild(document.createTextNode('\n'));
+  activeOutput.appendChild(line);
+  activeOutput.classList.add('visible');
+  activeOutput.scrollTop = activeOutput.scrollHeight;
+}
+
+console.log   = (...a) => { _log(...a);   appendToOutput('log',  a); };
+console.warn  = (...a) => { _warn(...a);  appendToOutput('warn', a); };
+console.error = (...a) => { _error(...a); appendToOutput('err',  a); };
+
+const RUNNERS = {
+  predict_1_1() { ex.predict_1_1(); },
+  predict_1_2() { ex.predict_1_2(); },
+  predict_1_3() { ex.predict_1_3(); },
+  async predict_1_4() {
+    console.log('--- var ---');
+    ex.predict_1_4_var();
+    await new Promise(r => setTimeout(r, 50));
+    console.log('--- let ---');
+    ex.predict_1_4_let();
+  },
+
+  run_2_1() {
+    console.log('var handlers:');
+    ex.createIndexHandlers_var(3).forEach(h => h());
+    console.log('let handlers:');
+    ex.createIndexHandlers_let(3).forEach(h => h());
+  },
+
+  run_2_2() {
+    console.log('42:', ex.tryAccess('const', () => 42));
+  },
+
+  run_2_3() {
+    console.log('result:', ex.runPipeline('  hello  '));
+  },
+
+  async run_3_1() {
+    console.log('buggy:');
+    ex.createButtons_buggy(i => console.log('  click', i));
+    await new Promise(r => setTimeout(r, 50));
+    console.log('fixed:');
+    ex.createButtons_fixed(i => console.log('  click', i));
+  },
+
+  run_3_2() {
+    try {
+      ex.initApp_buggy();
+    } catch (e) {
+      console.log('buggy error:', e.message);
+    }
+    console.log('fixed URL:', ex.initApp_fixed());
+  },
+
+  run_3_3() {
+    try {
+      console.log('buggy:', ex.processUser_buggy());
+    } catch (e) {
+      console.log('buggy error:', e.message);
+    }
+    console.log('fixed:', ex.processUser_fixed());
+  },
+
+  run_3_4() {
+    console.log('fixed:', ex.greetUser_fixed('Alice'));
+  },
+
+  run_4_1() {
+    let calls = 0;
+    const get = ex.createLazyGetter(() => { calls++; return { ok: true }; });
+    get();
+    get();
+    console.log('initializer calls:', calls, '(ожидается 1)');
+  },
+
+  run_4_2() {
+    let cfg;
+    try {
+      ex.assertInitialized(cfg, 'config');
+    } catch (e) {
+      console.log('до init:', e.message);
+    }
+    cfg = { url: 'https://api.example.com' };
+    ex.assertInitialized(cfg, 'config');
+    console.log('после init: ok, url =', cfg.url);
+  },
+};
+
+document.querySelectorAll('.btn-run').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const fnName   = btn.dataset.fn;
+    const outputEl = document.getElementById(`out-${fnName}`);
+    const runner   = RUNNERS[fnName];
+
+    if (!runner) {
+      console.error(`Нет runner для: ${fnName}`);
+      return;
+    }
+
+    outputEl.textContent = '';
+    outputEl.classList.remove('visible');
+
+    const infoLine = document.createElement('span');
+    infoLine.className = 'info';
+    infoLine.textContent = '⏳ Выполняется...';
+    outputEl.appendChild(infoLine);
+    outputEl.classList.add('visible');
+
+    await new Promise(r => setTimeout(r, 0));
+
+    outputEl.textContent = '';
+    activeOutput = outputEl;
+    btn.disabled = true;
+
+    try {
+      await runner();
+      await new Promise(r => setTimeout(r, 150));
+    } catch (err) {
+      appendToOutput('err', [`❌ ${err.message}`]);
+    } finally {
+      activeOutput = null;
+      btn.disabled = false;
+    }
+
+    if (!outputEl.hasChildNodes()) {
+      const done = document.createElement('span');
+      done.className = 'info';
+      done.textContent = '✓ Завершено (нет вывода)';
+      outputEl.appendChild(done);
+      outputEl.classList.add('visible');
+    }
+  });
+});
+
+document.querySelectorAll('.btn-clear').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const outputEl = document.getElementById(`out-${btn.dataset.clear}`);
+    outputEl.textContent = '';
+    outputEl.classList.remove('visible');
+  });
+});
+</script>
+</body>
+</html>
