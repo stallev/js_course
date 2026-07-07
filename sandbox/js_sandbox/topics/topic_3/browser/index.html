@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Тема 3 — Scope и замыкания | Упражнения</title>
+  <style>
+    :root {
+      --bg:       #0f172a;
+      --surface:  #1e293b;
+      --border:   #2d3f55;
+      --text:     #e2e8f0;
+      --muted:    #64748b;
+      --accent:   #14b8a6;
+      --green:    #22c55e;
+      --red:      #f87171;
+      --yellow:   #fbbf24;
+      --mono:     'JetBrains Mono', 'Cascadia Code', 'Fira Code', ui-monospace, monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      padding: 2rem 1.5rem;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .page-header { margin-bottom: 2rem; }
+    .page-header h1 { font-size: 1.4rem; font-weight: 700; }
+    .page-header p  { color: var(--muted); margin-top: 0.25rem; font-size: 0.85rem; }
+    .hint {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-size: 0.75rem; color: var(--muted);
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      border-radius: 6px; padding: 0.3rem 0.7rem; margin-top: 0.75rem;
+    }
+
+    section { margin-bottom: 2rem; }
+    .section-title {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--accent);
+      padding-bottom: 0.4rem; margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .ex {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.1rem;
+      margin-bottom: 0.75rem;
+    }
+    .ex-head {
+      display: flex; align-items: center; flex-wrap: wrap;
+      gap: 0.5rem; margin-bottom: 0.4rem;
+    }
+    .ex-id {
+      font-family: var(--mono); font-size: 0.7rem; font-weight: 600;
+      color: var(--accent); background: rgba(20,184,166,0.15);
+      padding: 0.1rem 0.45rem; border-radius: 4px;
+    }
+    .ex-title { font-weight: 600; font-size: 0.9rem; }
+    .badge-warn {
+      font-size: 0.68rem; color: var(--yellow);
+      background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.25);
+      padding: 0.1rem 0.45rem; border-radius: 4px;
+    }
+    .ex-desc {
+      color: var(--muted); font-size: 0.8rem;
+      margin-bottom: 0.6rem; line-height: 1.5;
+    }
+    .ex-desc code {
+      font-family: var(--mono); font-size: 0.78rem;
+      background: rgba(255,255,255,0.06);
+      padding: 0.05rem 0.3rem; border-radius: 3px;
+      color: var(--text);
+    }
+
+    .ex-actions { display: flex; gap: 0.4rem; align-items: center; }
+    button {
+      cursor: pointer; border: none; outline: none;
+      font-family: var(--mono); font-size: 0.75rem; font-weight: 500;
+      padding: 0.3rem 0.8rem; border-radius: 5px;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    button:hover:not(:disabled) { opacity: 0.85; }
+    button:active:not(:disabled) { transform: scale(0.97); }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-run   { background: var(--accent); color: #fff; }
+    .btn-clear { background: rgba(255,255,255,0.08); color: var(--muted); }
+
+    .output {
+      display: none;
+      font-family: var(--mono); font-size: 0.78rem; line-height: 1.7;
+      background: #080e1a; border: 1px solid var(--border);
+      border-radius: 5px; padding: 0.65rem 0.85rem;
+      margin-top: 0.65rem;
+      white-space: pre-wrap; word-break: break-all;
+      max-height: 260px; overflow-y: auto;
+    }
+    .output.visible { display: block; }
+    .log   { color: var(--text); }
+    .warn  { color: var(--yellow); }
+    .err   { color: var(--red); }
+    .info  { color: var(--muted); font-style: italic; }
+
+    .output::-webkit-scrollbar { width: 4px; }
+    .output::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <h1>Тема 3 — Scope и замыкания</h1>
+  <p>Упражнения. Вывод отображается здесь и дублируется в DevTools Console (F12).</p>
+  <span class="hint">
+    💡 Сначала запусти <code>npm run ts:watch</code> чтобы tsc автоматически
+    компилировал exercises.ts → exercises.js при каждом сохранении
+  </span>
+</header>
+
+<section>
+  <h2 class="section-title">Раздел 1 — Предсказание</h2>
+
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">1.1</span>
+      <span class="ex-title">Scope Chain — матрёшка</span>
+    </div>
+    <p class="ex-desc">inner видит outer, outer не видит innerVal.</p>
+    <div class="ex-actions">
+      <button class="btn-run"   data-fn="predict_1_1">▶ Запустить</button>
+      <button class="btn-clear" data-clear="predict_1_1">✕</button>
+    </div>
+    <pre class="output" id="out-predict_1_1"></pre>
+  </div>
+
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">1.2</span>
+      <span class="ex-title">Два независимых счётчика</span>
+    </div>
+    <p class="ex-desc">Отдельные замыкания → отдельный <code>count</code>.</p>
+    <div class="ex-actions">
+      <button class="btn-run"   data-fn="predict_1_2">▶ Запустить</button>
+      <button class="btn-clear" data-clear="predict_1_2">✕</button>
+    </div>
+    <pre class="output" id="out-predict_1_2"></pre>
+  </div>
+
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">1.3</span>
+      <span class="ex-title">var + замыкание в цикле</span>
+    </div>
+    <p class="ex-desc">Ожидаем <code>[3, 3, 3]</code> — одна переменная <code>i</code>.</p>
+    <div class="ex-actions">
+      <button class="btn-run"   data-fn="predict_1_3">▶ Запустить</button>
+      <button class="btn-clear" data-clear="predict_1_3">✕</button>
+    </div>
+    <pre class="output" id="out-predict_1_3"></pre>
+  </div>
+
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">1.4</span>
+      <span class="ex-title">Stale closure</span>
+      <span class="badge-warn">async</span>
+    </div>
+    <p class="ex-desc">count застревает на 1 — захваченное значение не обновляется.</p>
+    <div class="ex-actions">
+      <button class="btn-run"   data-fn="predict_1_4">▶ Запустить</button>
+      <button class="btn-clear" data-clear="predict_1_4">✕</button>
+    </div>
+    <pre class="output" id="out-predict_1_4"></pre>
+  </div>
+</section>
+
+<section>
+  <h2 class="section-title">Раздел 2 — Реализация</h2>
+
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">2.1</span>
+      <span class="ex-title">makeCounter</span>
+    </div>
+    <p class="ex-desc">Реализуй в <code>exercises.ts</code>, затем проверь здесь.</p>
+    <div class="ex-actions">
+      <button class="btn-run"   data-fn="run_2_1">▶ Запустить</button>
+      <button class="btn-clear" data-clear="run_2_1">✕</button>
+    </div>
+    <pre class="output" id="out-run_2_1"></pre>
+  </div>
+
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">2.2</span>
+      <span class="ex-title">memoize(fn)</span>
+    </div>
+    <p class="ex-desc">Кэш + <code>invalidate</code> / <code>clear</code> / <code>stats()</code>.</p>
+    <div class="ex-actions">
+      <button class="btn-run"   data-fn="run_2_2">▶ Запустить</button>
+      <button class="btn-clear" data-clear="run_2_2">✕</button>
+    </div>
+    <pre class="output" id="out-run_2_2"></pre>
+  </div>
+
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">2.3</span>
+      <span class="ex-title">createUserStore</span>
+    </div>
+    <p class="ex-desc">Модульный паттерн — приватные <code>users</code>, публичный API.</p>
+    <div class="ex-actions">
+      <button class="btn-run"   data-fn="run_2_3">▶ Запустить</button>
+      <button class="btn-clear" data-clear="run_2_3">✕</button>
+    </div>
+    <pre class="output" id="out-run_2_3"></pre>
+  </div>
+</section>
+
+<section>
+  <h2 class="section-title">Раздел 3 — Исправление багов</h2>
+
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">3.1</span>
+      <span class="ex-title">createHandlers — var в цикле</span>
+    </div>
+    <p class="ex-desc">FIX: <code>[0, 1, 2]</code> вместо <code>[3, 3, 3]</code>.</p>
+    <div class="ex-actions">
+      <button class="btn-run"   data-fn="run_3_1">▶ Запустить</button>
+      <button class="btn-clear" data-clear="run_3_1">✕</button>
+    </div>
+    <pre class="output" id="out-run_3_1"></pre>
+  </div>
+
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">3.2</span>
+      <span class="ex-title">createProcessor — stale batchSize</span>
+    </div>
+    <p class="ex-desc">FIX: читать актуальный <code>batchSize</code>, не frozen copy.</p>
+    <div class="ex-actions">
+      <button class="btn-run"   data-fn="run_3_2">▶ Запустить</button>
+      <button class="btn-clear" data-clear="run_3_2">✕</button>
+    </div>
+    <pre class="output" id="out-run_3_2"></pre>
+  </div>
+</section>
+
+<section>
+  <h2 class="section-title">Раздел 4 — Паттерны</h2>
+
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">4.1</span>
+      <span class="ex-title">compose</span>
+    </div>
+    <p class="ex-desc"><code>compose(f,g,h)(x) === f(g(h(x)))</code></p>
+    <div class="ex-actions">
+      <button class="btn-run"   data-fn="run_4_1">▶ Запустить</button>
+      <button class="btn-clear" data-clear="run_4_1">✕</button>
+    </div>
+    <pre class="output" id="out-run_4_1"></pre>
+  </div>
+
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">4.2</span>
+      <span class="ex-title">createRateLimiter</span>
+    </div>
+    <p class="ex-desc">Скользящее окно вызовов через замыкание.</p>
+    <div class="ex-actions">
+      <button class="btn-run"   data-fn="run_4_2">▶ Запустить</button>
+      <button class="btn-clear" data-clear="run_4_2">✕</button>
+    </div>
+    <pre class="output" id="out-run_4_2"></pre>
+  </div>
+</section>
+
+<script type="module">
+import * as ex from '../exercises.js';
+
+let activeOutput = null;
+
+const _log   = console.log.bind(console);
+const _warn  = console.warn.bind(console);
+const _error = console.error.bind(console);
+
+function appendToOutput(cls, args) {
+  if (!activeOutput) return;
+  const text = args
+    .map(a => (a !== null && typeof a === 'object') ? JSON.stringify(a) : String(a))
+    .join(' ');
+  const line = document.createElement('span');
+  line.className = cls;
+  line.textContent = text;
+  if (activeOutput.childNodes.length > 0) activeOutput.appendChild(document.createTextNode('\n'));
+  activeOutput.appendChild(line);
+  activeOutput.classList.add('visible');
+  activeOutput.scrollTop = activeOutput.scrollHeight;
+}
+
+console.log   = (...a) => { _log(...a);   appendToOutput('log',  a); };
+console.warn  = (...a) => { _warn(...a);  appendToOutput('warn', a); };
+console.error = (...a) => { _error(...a); appendToOutput('err',  a); };
+
+const RUNNERS = {
+  predict_1_1() { ex.predict_1_1(); },
+  predict_1_2() { ex.predict_1_2(); },
+  predict_1_3() { ex.predict_1_3(); },
+  async predict_1_4() {
+    const stop = ex.predict_1_4();
+    await new Promise(r => setTimeout(r, 350));
+    stop();
+  },
+
+  run_2_1() {
+    const c = ex.makeCounter(10);
+    c.increment(); c.increment();
+    console.log('value:', c.value(), '(ожидается 12)');
+  },
+
+  run_2_2() {
+    let calls = 0;
+    const fn = ex.memoize((n) => { calls++; return n * 2; });
+    console.log(fn(5), fn(5), 'calls:', calls);
+    console.log('stats:', fn.stats());
+  },
+
+  run_2_3() {
+    const store = ex.createUserStore();
+    store.add('Alice');
+    store.add('Bob');
+    console.log('users:', store.getAll());
+  },
+
+  run_3_1() {
+    console.log('buggy:', ex.createHandlers_buggy().map(h => h()));
+    console.log('fixed:', ex.createHandlers_fixed().map(h => h()));
+  },
+
+  run_3_2() {
+    const buggy = ex.createProcessor_buggy();
+    buggy.setBatchSize(50);
+    console.log('buggy len:', buggy.processBatch(Array(100).fill(0)).length);
+    const fixed = ex.createProcessor_fixed();
+    fixed.setBatchSize(50);
+    console.log('fixed len:', fixed.processBatch(Array(100).fill(0)).length);
+  },
+
+  run_4_1() {
+    const process = ex.compose(
+      s => s + '!',
+      s => s.toUpperCase(),
+      s => s.trim(),
+    );
+    console.log(process('  hello  '));
+  },
+
+  run_4_2() {
+    const limit = ex.createRateLimiter(2, 500);
+    console.log('a:', limit(() => console.log('a')));
+    console.log('b:', limit(() => console.log('b')));
+    console.log('c blocked:', limit(() => console.log('c')));
+  },
+};
+
+document.querySelectorAll('.btn-run').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const fnName   = btn.dataset.fn;
+    const outputEl = document.getElementById(`out-${fnName}`);
+    const runner   = RUNNERS[fnName];
+
+    if (!runner) {
+      console.error(`Нет runner для: ${fnName}`);
+      return;
+    }
+
+    outputEl.textContent = '';
+    outputEl.classList.remove('visible');
+
+    const infoLine = document.createElement('span');
+    infoLine.className = 'info';
+    infoLine.textContent = '⏳ Выполняется...';
+    outputEl.appendChild(infoLine);
+    outputEl.classList.add('visible');
+
+    await new Promise(r => setTimeout(r, 0));
+
+    outputEl.textContent = '';
+    activeOutput = outputEl;
+    btn.disabled = true;
+
+    try {
+      await runner();
+      await new Promise(r => setTimeout(r, 150));
+    } catch (err) {
+      appendToOutput('err', [`❌ ${err.message}`]);
+    } finally {
+      activeOutput = null;
+      btn.disabled = false;
+    }
+
+    if (!outputEl.hasChildNodes()) {
+      const done = document.createElement('span');
+      done.className = 'info';
+      done.textContent = '✓ Завершено (нет вывода)';
+      outputEl.appendChild(done);
+      outputEl.classList.add('visible');
+    }
+  });
+});
+
+document.querySelectorAll('.btn-clear').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const outputEl = document.getElementById(`out-${btn.dataset.clear}`);
+    outputEl.textContent = '';
+    outputEl.classList.remove('visible');
+  });
+});
+</script>
+</body>
+</html>
