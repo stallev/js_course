@@ -1953,6 +1953,7 @@ console.log('  old city (нетронут):', state1.user.address.city); // Mosc
 # Тема 28 — SOLID / DRY / KISS
 
 ← Предыдущая тема: [27 — Иммутабельность]
+→ Следующая тема: [29 — Компоненты и JSX](topic_29_components_and_jsx.md)
 
 ---
 

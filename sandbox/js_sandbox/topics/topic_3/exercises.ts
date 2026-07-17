@@ -141,7 +141,18 @@ export interface Counter {
  */
 export function makeCounter(initial = 0): Counter {
   // TODO
-  throw new Error("Not implemented");
+  let count = initial;
+  return {
+    increment() {
+      return count++;
+    },
+    value() {
+      return count;
+    },
+    decrement() {
+      return count--;
+    },
+  }
 }
 
 export interface MemoStats {
@@ -173,8 +184,48 @@ export interface MemoizedFn<T extends (...args: never[]) => unknown> {
 export function memoize<T extends (...args: never[]) => unknown>(
   fn: T
 ): MemoizedFn<T> {
-  // TODO: cache Map, hits/misses, методы invalidate/clear/stats
-  throw new Error("Not implemented");
+  const cache = new Map<string, unknown>();
+  let hits = 0;
+  let misses = 0;
+  
+  const makeKey = (args: Parameters<T>) => JSON.stringify(args);
+
+  const memoized = (...args: Parameters<T>) => {
+    const key = makeKey(args);
+    if (cache.has(key)) {
+      hits++;
+      return cache.get(key);
+    } else {
+      misses++;
+      const result = fn(...args);
+      cache.set(key, result);
+      return result;
+    }
+  };
+
+  memoized.clear = () => {
+    cache.clear();
+    hits = 0;
+    misses = 0;
+  };
+
+  memoized.invalidate = (...args: Parameters<T>) => {
+    const key = makeKey(args);
+    if (cache.has(key)) {
+      cache.delete(key);
+    }
+  }
+
+  memoized.stats = () => {
+    return {
+      hits,
+      misses,
+      size: cache.size,
+      hitRate: hits / (hits + misses),
+    };
+  };
+
+  return memoized as MemoizedFn<T>;
 }
 
 export interface User {
@@ -203,8 +254,38 @@ export interface UserStore {
  *   unsub();
  */
 export function createUserStore(): UserStore {
-  // TODO
-  throw new Error("Not implemented");
+  let users: User[] = [];
+  let nextId = 1;
+  const listeners = new Set<(users: User[]) => void>();
+  
+  const notify = () => {
+    const snapshot = [...users];
+    listeners.forEach((listener) => {
+      listener(snapshot);
+    });
+  };
+
+  return {
+    add(name: string) {
+      const user = { id: nextId++, name };
+      users.push(user);
+      notify();
+      return user;
+    },
+    remove(id: number) {
+      users = users.filter((user) => user.id !== id);
+      notify();
+    },
+    getAll() {
+      return [...users];
+    },
+    subscribe(listener: (users: User[]) => void) {
+      listeners.add(listener);
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+  };
 }
 
 /**
@@ -222,8 +303,15 @@ export function createUserStore(): UserStore {
 export function once<T extends (...args: never[]) => unknown>(
   fn: T
 ): (...args: Parameters<T>) => ReturnType<T> {
-  // TODO
-  throw new Error("Not implemented");
+  let called = false;
+  let result: ReturnType<T>;
+  return (...args: Parameters<T>) => {
+    if (!called) {
+      called = true;
+      result = fn(...args) as ReturnType<T>;
+    }
+    return result;
+  };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

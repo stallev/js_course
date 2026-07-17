@@ -3,7 +3,7 @@
 Структурированный курс по JavaScript с фокусом на **теорию под капотом**, **паттерны** и **подготовку к интервью** на позицию Middle FullStack Developer.
 
 **Стек:** Next.js · React · TypeScript  
-**Охват:** 28 тем · 8 разделов · ~49–71 часов самостоятельного изучения
+**Охват:** 43 темы · 13 разделов · ~75–106 часов самостоятельного изучения
 
 ---
 
@@ -25,7 +25,8 @@
 | **Практика** | Задание + эталонное решение с ключевым инсайтом |
 | **Паттерны** | ❌ антипаттерн → ✅ правильно → обоснование |
 
-Подробные требования к содержанию: [`general/01_topic_requirements.md`](general/01_topic_requirements.md)
+Подробные требования к содержанию: [`general/01_topic_requirements.md`](general/01_topic_requirements.md)  
+Полное оглавление всех тем с навигацией: [`topics/README.md`](topics/README.md)
 
 ---
 
@@ -40,6 +41,7 @@ js_course/
 │   └── 02_topic_list.md               # сводная таблица тем и приоритетов
 │
 ├── topics/
+│   ├── README.md                      # оглавление всех 43 тем с навигацией
 │   ├── section_1_engine.md            # темы 1–3: Event Loop, Hoisting, Scope
 │   ├── section_2_types.md             # темы 4–6
 │   ├── section_3_functions.md         # темы 7–11
@@ -47,7 +49,8 @@ js_course/
 │   ├── section_5_async.md             # темы 15–18
 │   ├── section_6_syntax.md            # темы 19–22
 │   ├── section_7_modules.md           # темы 23–24
-│   └── section_8_patterns.md          # темы 25–28
+│   ├── section_8_patterns.md          # темы 25–28
+│   └── topic_29_*.md … topic_43_*.md  # React: темы 29–43, каждая тема — отдельный файл
 │
 └── sandbox/                           # практические упражнения
     ├── HOW_TO_PRACTICE.md             # инструкция для студентов ← читай первым
@@ -137,20 +140,61 @@ js_course/
 | 27 | Иммутабельность | ↑ |
 | 28 | SOLID / DRY / KISS | ↑ |
 
+### Раздел 9 — Компоненты и рендеринг
+*React-специфичные темы начинаются здесь: каждая тема — отдельный файл*
+
+| № | Тема | Файл |
+|---|------|------|
+| 29 | Компоненты и JSX | [`topic_29_components_and_jsx.md`](topics/topic_29_components_and_jsx.md) |
+| 30 | Virtual DOM и реконсиляция (Fiber) | [`topic_30_virtual_dom_and_fiber.md`](topics/topic_30_virtual_dom_and_fiber.md) |
+
+### Раздел 10 — Хуки состояния и эффектов
+
+| № | Тема | Файл |
+|---|------|------|
+| 31 | useState | [`topic_31_usestate.md`](topics/topic_31_usestate.md) |
+| 32 | useReducer | [`topic_32_usereducer.md`](topics/topic_32_usereducer.md) |
+| 33 | useEffect | [`topic_33_useeffect.md`](topics/topic_33_useeffect.md) |
+| 34 | useLayoutEffect и useInsertionEffect | [`topic_34_uselayouteffect_useinsertioneffect.md`](topics/topic_34_uselayouteffect_useinsertioneffect.md) |
+
+### Раздел 11 — Производительность, ссылки, контекст
+
+| № | Тема | Файл |
+|---|------|------|
+| 35 | useMemo, useCallback и React.memo | [`topic_35_usememo_usecallback_memo.md`](topics/topic_35_usememo_usecallback_memo.md) |
+| 36 | useRef и useImperativeHandle | [`topic_36_useref_useimperativehandle.md`](topics/topic_36_useref_useimperativehandle.md) |
+| 37 | useContext | [`topic_37_usecontext.md`](topics/topic_37_usecontext.md) |
+
+### Раздел 12 — Конкурентные и специализированные хуки
+
+| № | Тема | Файл |
+|---|------|------|
+| 38 | useTransition и useDeferredValue | [`topic_38_usetransition_usedeferredvalue.md`](topics/topic_38_usetransition_usedeferredvalue.md) |
+| 39 | useId, useDebugValue, useSyncExternalStore | [`topic_39_useid_usedebugvalue_usesyncexternalstore.md`](topics/topic_39_useid_usedebugvalue_usesyncexternalstore.md) |
+| 40 | React 19: use(), useActionState, useOptimistic | [`topic_40_react19_hooks.md`](topics/topic_40_react19_hooks.md) |
+
+### Раздел 13 — Композиция и архитектура React
+
+| № | Тема | Файл |
+|---|------|------|
+| 41 | Кастомные хуки и композиция логики | [`topic_41_custom_hooks.md`](topics/topic_41_custom_hooks.md) |
+| 42 | Server Components и Suspense в Next.js App Router | [`topic_42_server_components_and_suspense.md`](topics/topic_42_server_components_and_suspense.md) |
+| 43 | Правила хуков и антипаттерны (сводная тема) | [`topic_43_hooks_rules_and_antipatterns.md`](topics/topic_43_hooks_rules_and_antipatterns.md) |
+
 ---
 
 ## Приоритеты изучения
 
 | Приоритет | Темы | Когда |
 |-----------|------|--------|
-| 🔴 **Обязательно** | 1–9, 12–13, 15–16, 19–20, 22, 24–25 | Сначала — без этого часто отсекают на первом этапе |
-| 🟡 **Ожидается** | 10, 17–18, 21, 23, 26–27 | После обязательных — выделяет на фоне других кандидатов |
-| 🟢 **Бонус** | 11, 14, 28 | В конце — редко спрашивают, но показывает глубину |
+| 🔴 **Обязательно** | 1–9, 12–13, 15–16, 19–20, 22, 24–25, 29–33, 35–37 | Сначала — без этого часто отсекают на первом этапе |
+| 🟡 **Ожидается** | 10, 17–18, 21, 23, 26–27, 34, 41–43 | После обязательных — выделяет на фоне других кандидатов |
+| 🟢 **Бонус** | 11, 14, 28, 38–40 | В конце — редко спрашивают, но показывает глубину |
 
 Полная таблица с пояснениями: [`general/02_topic_list.md`](general/02_topic_list.md)
 
-**Рекомендуемый порядок:** разделы 1 → 2 → 3 → 5 → 6 → 4 → 7 → 8  
-*(асинхронность после движка; ООП можно после функций; паттерны — финал)*
+**Рекомендуемый порядок:** разделы 1 → 2 → 3 → 5 → 6 → 4 → 7 → 8 → 9 → 10 → 11 → 12 → 13  
+*(асинхронность после движка; ООП можно после функций; паттерны — перед React; React-раздел — после освоения базового JS, так как активно ссылается на замыкания, Event Loop, Promise)*
 
 ---
 
