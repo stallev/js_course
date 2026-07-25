@@ -9,7 +9,7 @@
 # Тема 43 — Правила хуков и антипаттерны (сводная тема)
 
 ← Предыдущая тема: [42 — Server Components и Suspense в Next.js App Router](topic_42_server_components_and_suspense.md)
-→ Следующая тема: нет — это последняя тема курса
+→ Следующая тема: [44 — Redux Toolkit](topic_44_redux_toolkit.md)
 
 ---
 
@@ -329,4 +329,4 @@ function ProductPage({ productId, showReviews }: { productId: string; showReview
 
 ---
 
-*Раздел 13 — Композиция и архитектура React · Тема 43 из 43 — конец React-раздела курса*
+*Раздел 13 — Композиция и архитектура React · Тема 43 из 45*
