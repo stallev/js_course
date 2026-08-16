@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Тема 7 — null и undefined</title>
+  <link rel="stylesheet" href="../../../browser/runner.css" />
+</head>
+<body>
+<header class="page-header">
+  <h1>Тема 7 — null и undefined</h1>
+  <p>Сначала заполни <code>exercises.js</code>. Сверяйся с <code>solutions.js</code> после попытки.</p>
+  <span class="hint">Пустая строка и ноль — не пустота.</span>
+</header>
+
+<section>
+  <h2 class="section-title">Задания</h2>
+  
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">7.1</span>
+      <span class="ex-title">Четыре пустоты</span>
+    </div>
+    <p class="ex-desc"><code>undefined</code>, <code>null</code>, <code>""</code>, <code>0</code> и строгие сравнения.</p>
+    <div class="ex-actions">
+      <button class="btn-run" data-fn="emptyValues">Запустить</button>
+      <button class="btn-clear" data-clear="emptyValues">Очистить</button>
+    </div>
+    <pre class="output" id="out-emptyValues"></pre>
+  </div>
+</section>
+<script type="module">
+  import { initRunner } from "../../../browser/runner.js";
+  import * as ex from "../exercises.js";
+  initRunner(ex);
+</script>
+</body>
+</html>

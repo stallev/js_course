@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Тема 25 — import / export</title>
+  <link rel="stylesheet" href="../../../browser/runner.css" />
+</head>
+<body>
+<header class="page-header">
+  <h1>Тема 25 — import / export</h1>
+  <p>Сначала заполни <code>exercises.js</code>. Сверяйся с <code>solutions.js</code> после попытки.</p>
+  <span class="hint">double живёт в math.js рядом.</span>
+</header>
+
+<section>
+  <h2 class="section-title">Задания</h2>
+  
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">25.1</span>
+      <span class="ex-title">Импорт double</span>
+    </div>
+    <p class="ex-desc">Выведи double(4). Реализация — в math.js.</p>
+    <div class="ex-actions">
+      <button class="btn-run" data-fn="runDouble">Запустить</button>
+      <button class="btn-clear" data-clear="runDouble">Очистить</button>
+    </div>
+    <pre class="output" id="out-runDouble"></pre>
+  </div>
+</section>
+<script type="module">
+  import { initRunner } from "../../../browser/runner.js";
+  import * as ex from "../exercises.js";
+  initRunner(ex);
+</script>
+</body>
+</html>

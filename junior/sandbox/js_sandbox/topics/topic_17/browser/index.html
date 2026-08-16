@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Тема 17 — DOM: поиск узлов</title>
+  <link rel="stylesheet" href="../../../browser/runner.css" />
+</head>
+<body>
+<header class="page-header">
+  <h1>Тема 17 — DOM: поиск узлов</h1>
+  <p>Сначала заполни <code>exercises.js</code>. Сверяйся с <code>solutions.js</code> после попытки.</p>
+  <span class="hint">Только браузер. Скрипт уже в конце страницы.</span>
+</header>
+<div class="demo">
+  <h3>Песочница DOM</h3>
+  <h1 id="title">Курс</h1>
+  <p id="out"></p>
+</div>
+<section>
+  <h2 class="section-title">Задания</h2>
+  
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">17.1</span>
+      <span class="ex-title">Найти и заполнить</span>
+    </div>
+    <p class="ex-desc">Проверь null, лог title, текст в #out, класс ready.</p>
+    <div class="ex-actions">
+      <button class="btn-run" data-fn="fillDom">Запустить</button>
+      <button class="btn-clear" data-clear="fillDom">Очистить</button>
+    </div>
+    <pre class="output" id="out-fillDom"></pre>
+  </div>
+</section>
+<script type="module">
+  import { initRunner } from "../../../browser/runner.js";
+  import * as ex from "../exercises.js";
+  initRunner(ex);
+</script>
+</body>
+</html>
