@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Тема 8 — if / else / switch</title>
+  <link rel="stylesheet" href="../../../browser/runner.css" />
+</head>
+<body>
+<header class="page-header">
+  <h1>Тема 8 — if / else / switch</h1>
+  <p>Сначала заполни <code>exercises.js</code>. Сверяйся с <code>solutions.js</code> после попытки.</p>
+  <span class="hint">Фигурные скобки обязательны.</span>
+</header>
+
+<section>
+  <h2 class="section-title">Задания</h2>
+  
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">8.1</span>
+      <span class="ex-title">Вход</span>
+    </div>
+    <p class="ex-desc">Возраст и билет: рано / нет билета / вход.</p>
+    <div class="ex-actions">
+      <button class="btn-run" data-fn="access">Запустить</button>
+      <button class="btn-clear" data-clear="access">Очистить</button>
+    </div>
+    <pre class="output" id="out-access"></pre>
+  </div>
+
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">8.2</span>
+      <span class="ex-title">switch по статусу</span>
+    </div>
+    <p class="ex-desc">Ветки <code>ok</code>, <code>error</code>, <code>default</code> с <code>break</code>.</p>
+    <div class="ex-actions">
+      <button class="btn-run" data-fn="statusSwitch">Запустить</button>
+      <button class="btn-clear" data-clear="statusSwitch">Очистить</button>
+    </div>
+    <pre class="output" id="out-statusSwitch"></pre>
+  </div>
+</section>
+<script type="module">
+  import { initRunner } from "../../../browser/runner.js";
+  import * as ex from "../exercises.js";
+  initRunner(ex);
+</script>
+</body>
+</html>

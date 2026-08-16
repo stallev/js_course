@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Тема 6 — Строгое сравнение</title>
+  <link rel="stylesheet" href="../../../browser/runner.css" />
+</head>
+<body>
+<header class="page-header">
+  <h1>Тема 6 — Строгое сравнение</h1>
+  <p>Сначала заполни <code>exercises.js</code>. Сверяйся с <code>solutions.js</code> после попытки.</p>
+  <span class="hint">Только <code>===</code> / <code>!==</code>.</span>
+</header>
+
+<section>
+  <h2 class="section-title">Задания</h2>
+  
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">6.1</span>
+      <span class="ex-title">18 и "18"</span>
+    </div>
+    <p class="ex-desc">Сравни число и строку, затем <code>Number(asText) === n</code>.</p>
+    <div class="ex-actions">
+      <button class="btn-run" data-fn="strictEq">Запустить</button>
+      <button class="btn-clear" data-clear="strictEq">Очистить</button>
+    </div>
+    <pre class="output" id="out-strictEq"></pre>
+  </div>
+</section>
+<script type="module">
+  import { initRunner } from "../../../browser/runner.js";
+  import * as ex from "../exercises.js";
+  initRunner(ex);
+</script>
+</body>
+</html>

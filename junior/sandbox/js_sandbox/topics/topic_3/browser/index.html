@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Тема 3 — Выражения и инструкции</title>
+  <link rel="stylesheet" href="../../../browser/runner.css" />
+</head>
+<body>
+<header class="page-header">
+  <h1>Тема 3 — Выражения и инструкции</h1>
+  <p>Сначала заполни <code>exercises.js</code>. Сверяйся с <code>solutions.js</code> после попытки.</p>
+  <span class="hint">Сумма — выражение справа от <code>=</code>.</span>
+</header>
+
+<section>
+  <h2 class="section-title">Задания</h2>
+  
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">3.1</span>
+      <span class="ex-title">Цена × количество</span>
+    </div>
+    <p class="ex-desc"><code>price</code>, <code>count</code>, <code>total</code> — выведи итог.</p>
+    <div class="ex-actions">
+      <button class="btn-run" data-fn="printTotal">Запустить</button>
+      <button class="btn-clear" data-clear="printTotal">Очистить</button>
+    </div>
+    <pre class="output" id="out-printTotal"></pre>
+  </div>
+</section>
+<script type="module">
+  import { initRunner } from "../../../browser/runner.js";
+  import * as ex from "../exercises.js";
+  initRunner(ex);
+</script>
+</body>
+</html>

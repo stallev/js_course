@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Тема 5 — Union и optional</title>
+  <link rel="stylesheet" href="../../../browser/runner.css" />
+</head>
+<body>
+<header class="page-header">
+  <h1>Тема 5 — Union и optional</h1>
+  <p>Исходник — <code>exercises.ts</code>. Для вкладки нужен <code>npm run bridge:watch</code>.</p>
+  <span class="hint">Терминал: <code>npx tsx</code> из корня репозитория.</span>
+</header>
+<section>
+  <h2 class="section-title">Задания</h2>
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">5.1</span>
+      <span class="ex-title">formatId / labelDraft</span>
+    </div>
+    <p class="ex-desc">Строка из id; черновик без названия.</p>
+    <div class="ex-actions">
+      <button class="btn-run" data-fn="runIds">Запустить</button>
+      <button class="btn-clear" data-clear="runIds">Очистить</button>
+    </div>
+    <pre class="output" id="out-runIds"></pre>
+  </div>
+</section>
+<script type="module">
+  import { initRunner } from "../../../browser/runner.js";
+  import * as ex from "../exercises.js";
+  initRunner(ex);
+</script>
+</body>
+</html>

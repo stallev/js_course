@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Тема 20 — Callbacks / setTimeout</title>
+  <link rel="stylesheet" href="../../../browser/runner.css" />
+</head>
+<body>
+<header class="page-header">
+  <h1>Тема 20 — Callbacks / setTimeout</h1>
+  <p>Сначала заполни <code>exercises.js</code>. Сверяйся с <code>solutions.js</code> после попытки.</p>
+  <span class="hint">Подожди ~0.5с после кнопки.</span>
+</header>
+
+<section>
+  <h2 class="section-title">Задания</h2>
+  
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">20.1</span>
+      <span class="ex-title">Порядок логов</span>
+    </div>
+    <p class="ex-desc">старт, setTimeout 500, сразу. Порядок: старт, сразу, потом.</p>
+    <div class="ex-actions">
+      <button class="btn-run" data-fn="timeoutOrder">Запустить</button>
+      <button class="btn-clear" data-clear="timeoutOrder">Очистить</button>
+    </div>
+    <pre class="output" id="out-timeoutOrder"></pre>
+  </div>
+</section>
+<script type="module">
+  import { initRunner } from "../../../browser/runner.js";
+  import * as ex from "../exercises.js";
+  initRunner(ex);
+</script>
+</body>
+</html>

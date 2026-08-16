@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Тема 1 — Как запускается JavaScript</title>
+  <link rel="stylesheet" href="../../../browser/runner.css" />
+</head>
+<body>
+<header class="page-header">
+  <h1>Тема 1 — Как запускается JavaScript</h1>
+  <p>Сначала заполни <code>exercises.js</code>. Сверяйся с <code>solutions.js</code> после попытки.</p>
+  <span class="hint">Терминал: <code>node exercises.js</code> (из папки темы) или кнопка ниже.</span>
+</header>
+
+<section>
+  <h2 class="section-title">Задания</h2>
+  
+  <div class="ex">
+    <div class="ex-head">
+      <span class="ex-id">1.1</span>
+      <span class="ex-title">Сообщение курса</span>
+    </div>
+    <p class="ex-desc">Напечатай <code>Раздел 1, тема 1</code> через <code>console.log</code>.</p>
+    <div class="ex-actions">
+      <button class="btn-run" data-fn="hello">Запустить</button>
+      <button class="btn-clear" data-clear="hello">Очистить</button>
+    </div>
+    <pre class="output" id="out-hello"></pre>
+  </div>
+</section>
+<script type="module">
+  import { initRunner } from "../../../browser/runner.js";
+  import * as ex from "../exercises.js";
+  initRunner(ex);
+</script>
+</body>
+</html>

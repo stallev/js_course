@@ -3,12 +3,14 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "next:dev": "npm run dev   --prefix sandbox/next_sandbox",
-    "next:build": "npm run build --prefix sandbox/next_sandbox",
-    "next:start": "npm run start --prefix sandbox/next_sandbox",
-    "next:lint": "npm run lint  --prefix sandbox/next_sandbox",
-    "ts:build": "tsc -p sandbox/js_sandbox/tsconfig.json",
-    "ts:watch": "tsc -p sandbox/js_sandbox/tsconfig.json --watch"
+    "next:dev": "npm run dev   --prefix middle/sandbox/next_sandbox",
+    "next:build": "npm run build --prefix middle/sandbox/next_sandbox",
+    "next:start": "npm run start --prefix middle/sandbox/next_sandbox",
+    "next:lint": "npm run lint  --prefix middle/sandbox/next_sandbox",
+    "ts:build": "tsc -p middle/sandbox/js_sandbox/tsconfig.json",
+    "ts:watch": "tsc -p middle/sandbox/js_sandbox/tsconfig.json --watch",
+    "bridge:build": "tsc -p typescript/sandbox/js_sandbox/tsconfig.json",
+    "bridge:watch": "tsc -p typescript/sandbox/js_sandbox/tsconfig.json --watch"
   },
   "devDependencies": {
     "typescript": "^6.0.3"

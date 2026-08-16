@@ -1,4 +1,5 @@
-/sandbox/next_sandbox/node_modules
-/sandbox/next_sandbox/.next
-/sandbox/js_sandbox/**/*.js
+/middle/sandbox/next_sandbox/node_modules
+/middle/sandbox/next_sandbox/.next
+/middle/sandbox/js_sandbox/**/*.js
+/typescript/sandbox/js_sandbox/topics/**/*.js
 /node_modules
