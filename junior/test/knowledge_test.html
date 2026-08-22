@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Проверка знаний — JavaScript Junior</title>
+<style>
+  :root {
+    --bg: #f4f5f9;
+    --card: #ffffff;
+    --text: #1f2430;
+    --muted: #6b7280;
+    --border: #e2e4ea;
+    --primary: #4f46e5;
+    --primary-dark: #4338ca;
+    --good: #16a34a;
+    --bad: #dc2626;
+    --good-bg: #ecfdf5;
+    --bad-bg: #fef2f2;
+    --track: #e5e7eb;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+  }
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 32px 20px 80px;
+  }
+  header.top {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  header.top h1 {
+    font-size: 1.5rem;
+    margin: 0 0 6px;
+  }
+  header.top p {
+    color: var(--muted);
+    margin: 0;
+    font-size: 0.95rem;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px;
+    box-shadow: 0 1px 3px rgba(20, 20, 40, 0.04);
+  }
+  .card + .card { margin-top: 20px; }
+
+  /* Start screen */
+  .start-card h2 { margin-top: 0; }
+  .meta-list {
+    list-style: none;
+    padding: 0;
+    margin: 18px 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+  }
+  .meta-list li {
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 0.88rem;
+  }
+  .meta-list strong { display: block; font-size: 1.15rem; color: var(--primary); }
+
+  .btn {
+    appearance: none;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 22px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.05s ease;
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: var(--primary-dark); }
+  .btn-secondary { background: var(--track); color: var(--text); }
+  .btn-secondary:hover { background: #d7d9e0; }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+
+  .resume-banner {
+    background: #eef2ff;
+    border: 1px solid #c7d2fe;
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 0.9rem;
+    margin-bottom: 18px;
+  }
+  .last-result-banner {
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 0.9rem;
+    margin-bottom: 18px;
+    color: var(--muted);
+  }
+
+  /* Progress */
+  .progress-outer {
+    background: var(--track);
+    border-radius: 8px;
+    height: 8px;
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+  .progress-inner {
+    background: var(--primary);
+    height: 100%;
+    transition: width 0.25s ease;
+  }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-bottom: 22px;
+  }
+
+  /* Question */
+  .q-section-tag {
+    display: inline-block;
+    background: #eef2ff;
+    color: var(--primary-dark);
+    font-size: 0.76rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  .q-text {
+    font-size: 1.08rem;
+    font-weight: 600;
+    margin: 0 0 16px;
+  }
+  pre.code-block {
+    background: #1e1e2e;
+    color: #e2e4f3;
+    border-radius: 10px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    font-size: 0.86rem;
+    margin: 0 0 18px;
+    font-family: "SF Mono", Consolas, Menlo, monospace;
+    line-height: 1.55;
+  }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option {
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 13px 16px;
+    cursor: pointer;
+    font-size: 0.94rem;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    transition: border-color 0.12s ease, background 0.12s ease;
+  }
+  .option:hover { border-color: var(--primary); }
+  .option.selected {
+    border-color: var(--primary);
+    background: #eef2ff;
+  }
+  .option .bullet {
+    flex: 0 0 auto;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    margin-top: 1px;
+  }
+  .option.selected .bullet {
+    border-color: var(--primary);
+    background: var(--primary);
+    box-shadow: inset 0 0 0 3px #fff;
+  }
+
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 24px;
+  }
+
+  /* Results */
+  .score-hero {
+    text-align: center;
+    padding: 10px 0 4px;
+  }
+  .score-hero .big {
+    font-size: 2.6rem;
+    font-weight: 700;
+    color: var(--primary);
+  }
+  .score-hero .verdict {
+    margin-top: 6px;
+    font-size: 0.98rem;
+    color: var(--muted);
+  }
+  .section-bar-row {
+    display: grid;
+    grid-template-columns: 170px 1fr 60px;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+  }
+  .section-bar-track {
+    background: var(--track);
+    border-radius: 6px;
+    height: 10px;
+    overflow: hidden;
+  }
+  .section-bar-fill { height: 100%; border-radius: 6px; }
+  .fill-good { background: var(--good); }
+  .fill-mid { background: #d97706; }
+  .fill-bad { background: var(--bad); }
+
+  .review-item {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+  }
+  .review-item .rq { font-weight: 600; margin-bottom: 10px; }
+  .review-item pre.code-block { margin-bottom: 12px; }
+  .answer-line { font-size: 0.88rem; margin: 4px 0; padding: 8px 10px; border-radius: 8px; }
+  .answer-wrong { background: var(--bad-bg); color: #991b1b; }
+  .answer-right { background: var(--good-bg); color: #166534; }
+  .explain { font-size: 0.88rem; color: var(--muted); margin-top: 8px; }
+  .review-tag { font-size: 0.76rem; color: var(--muted); margin-bottom: 6px; }
+
+  .hidden { display: none !important; }
+
+  footer.hint {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.8rem;
+    margin-top: 24px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>Проверка знаний — JavaScript Junior</h1>
+    <p>65 вопросов по всем 9 разделам курса. Проверяем понимание, не заучивание.</p>
+  </header>
+
+  <!-- START SCREEN -->
+  <div id="screen-start" class="card start-card">
+    <div id="resumeBanner" class="resume-banner hidden"></div>
+    <div id="lastResultBanner" class="last-result-banner hidden"></div>
+    <h2>Готовы проверить себя?</h2>
+    <p style="color: var(--muted)">
+      Вопросы построены на предсказании вывода кода, поиске типичных ошибок джуниора и рабочих сценариях —
+      а не на пересказе определений. Каждый вопрос — один правильный вариант из четырёх.
+      Результат и объяснения покажутся только в конце теста.
+    </p>
+    <ul class="meta-list">
+      <li><strong>65</strong>вопросов</li>
+      <li><strong>9</strong>разделов курса</li>
+      <li><strong>~35–45 мин</strong>обычное время</li>
+      <li><strong>1</strong>правильный ответ на вопрос</li>
+    </ul>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="btnStart">Начать тест</button>
+      <button class="btn btn-secondary hidden" id="btnResume">Продолжить с места остановки</button>
+    </div>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div id="screen-quiz" class="card hidden">
+    <div class="progress-outer"><div class="progress-inner" id="progressInner"></div></div>
+    <div class="progress-label">
+      <span id="progressText">Вопрос 1 из 65</span>
+      <span id="progressPercent">0%</span>
+    </div>
+    <div class="q-section-tag" id="qSectionTag">Раздел</div>
+    <div class="q-text" id="qText">Текст вопроса</div>
+    <pre class="code-block hidden" id="qCode"></pre>
+    <div class="options" id="qOptions"></div>
+    <div class="nav-row">
+      <button class="btn btn-secondary" id="btnPrev">← Назад</button>
+      <button class="btn btn-primary" id="btnNext">Далее →</button>
+    </div>
+  </div>
+
+  <!-- RESULTS SCREEN -->
+  <div id="screen-results" class="hidden">
+    <div class="card">
+      <div class="score-hero">
+        <div class="big" id="scoreBig">0 / 65</div>
+        <div class="verdict" id="scoreVerdict">—</div>
+      </div>
+    </div>
+    <div class="card">
+      <h2 style="margin-top:0;">Результат по разделам</h2>
+      <div id="sectionBars"></div>
+    </div>
+    <div class="card">
+      <h2 style="margin-top:0;">Разбор ошибок</h2>
+      <p id="noMistakes" class="hidden" style="color: var(--muted)">Ошибок нет — отличный результат!</p>
+      <div id="reviewList"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="btnRestart">Пройти заново</button>
+    </div>
+  </div>
+
+  <footer class="hint">Курс: <code>junior/topics/</code> · Тест работает офлайн, ничего никуда не отправляется</footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var SECTIONS = [
+    { id: 1, title: "Среда и синтаксис", file: "section_1_environment.md" },
+    { id: 2, title: "Типы", file: "section_2_types.md" },
+    { id: 3, title: "Управление потоком", file: "section_3_control_flow.md" },
+    { id: 4, title: "Функции", file: "section_4_functions.md" },
+    { id: 5, title: "Объекты и массивы", file: "section_5_objects_arrays.md" },
+    { id: 6, title: "DOM и события", file: "section_6_dom_events.md" },
+    { id: 7, title: "Асинхронность", file: "section_7_async.md" },
+    { id: 8, title: "Модули", file: "section_8_modules.md" },
+    { id: 9, title: "Аккуратный код", file: "section_9_clean_code.md" }
+  ];
+
+  var QUESTIONS = [
+    // ===== Раздел 1 — Среда и синтаксис (6) =====
+    {
+      section: 1,
+      code: 'console.log("A");\ndocument.querySelector("#x");',
+      q: 'Этот файл запускают командой node app.js. Что произойдёт?',
+      options: [
+        'Выведется "A", затем ошибка — в Node нет объекта document',
+        'Ничего не выведется, файл упадёт до "A"',
+        'Выведется "A", querySelector вернёт null без ошибки',
+        'Node сам подставит браузерный DOM, и всё выполнится'
+      ],
+      correct: 0,
+      explain: 'Код идёт сверху вниз (тема 1): "A" печатается, затем на строке с document — ошибка, потому что в Node нет "кухни" браузера с document.'
+    },
+    {
+      section: 1,
+      q: 'Ты открыл HTML-страницу, изменил JS-файл, обновил страницу — в консоли ничего нового. Что стоит проверить в первую очередь?',
+      options: [
+        'Переустановить браузер',
+        'Открыть DevTools → Console: путь src, ошибки загрузки, сохранён ли файл',
+        'Переписать код на Node.js',
+        'Добавить <!DOCTYPE html> ещё раз'
+      ],
+      correct: 1,
+      explain: 'Консоль — главный прибор отладки (тема 1): опечатка в src, несохранённый файл или старый кэш видно именно там.'
+    },
+    {
+      section: 1,
+      code: 'const city = "Казань";\ncity = "Москва";',
+      q: 'Что произойдёт при выполнении?',
+      options: [
+        'city станет "Москва", ошибок нет',
+        'Ошибка: Assignment to constant variable',
+        'Будет создана новая переменная city',
+        'city станет undefined'
+      ],
+      correct: 1,
+      explain: 'const запрещает переприсваивание самой переменной (тема 2).'
+    },
+    {
+      section: 1,
+      q: 'Почему по умолчанию лучше объявлять переменные через const, а не let?',
+      options: [
+        'const работает быстрее в любых движках JS',
+        'let вообще нельзя использовать в Node.js',
+        'const явно показывает, что значение не должно переприсваиваться — случайная правка ниже по файлу сразу станет заметной ошибкой',
+        'const автоматически защищает содержимое объекта от изменений'
+      ],
+      correct: 2,
+      explain: 'Правило курса: const, пока не понадобилось присваивание ещё раз (тема 2). Это не про скорость и не про заморозку объекта.'
+    },
+    {
+      section: 1,
+      code: 'console.log(let x = 5);',
+      q: 'Почему этот код не выполнится?',
+      options: [
+        'console.log не принимает числа',
+        'let x = 5 — инструкция, у неё нет значения, которое можно передать аргументом',
+        'Нужно поставить точку с запятой внутри скобок',
+        'Имя x уже занято зарезервированным словом'
+      ],
+      correct: 1,
+      explain: 'Выражение даёт значение, инструкция — только действие (тема 3). console.log ждёт выражение.'
+    },
+    {
+      section: 1,
+      code: 'const price = 100;\n// умножаем price на 0.9\nconst total = price * 0.9;',
+      q: 'Согласно правилам курса, что не так с комментарием в этом коде?',
+      options: [
+        'Комментарий пересказывает то, что и так видно из кода, вместо того чтобы объяснить "зачем"',
+        'Комментарии в JS вообще нельзя ставить перед const',
+        'Комментарий должен быть оформлен как /* */, а не //',
+        'Всё верно, комментарий хороший'
+      ],
+      correct: 0,
+      explain: 'Хороший комментарий объясняет "почему" (например, "скидка 10% для постоянных клиентов"), а не дублирует код построчно (тема 3).'
+    },
+
+    // ===== Раздел 2 — Типы (11) =====
+    {
+      section: 2,
+      code: 'let value = null;\nconsole.log(typeof value);',
+      q: 'Что выведется и почему это не значит, что value — объект?',
+      options: [
+        '"null" — специальное значение',
+        '"object" — историческая ошибка языка, null не является объектом',
+        '"undefined" — null и undefined эквивалентны',
+        'Будет ошибка выполнения'
+      ],
+      correct: 1,
+      explain: 'typeof null возвращает "object" — известная историческая ошибка JS. Пустоту проверяют через value === null, не через typeof (тема 4).'
+    },
+    {
+      section: 2,
+      code: 'function greet(name) {\n  console.log(typeof name);\n}\ngreet();',
+      q: 'Что выведется?',
+      options: ['"null"', '"string"', '"undefined"', 'Будет ошибка — не передан аргумент'],
+      correct: 2,
+      explain: 'Параметр без аргумента получает значение undefined, а не ошибку (темы 4, 7, 11).'
+    },
+    {
+      section: 2,
+      code: 'console.log("5" + 3);\nconsole.log("5" - 3);',
+      q: 'Что выведется в консоли (две строки)?',
+      options: ['8 и 8', '"53" и 2', '"53" и "5-3"', '8 и "2"'],
+      correct: 1,
+      explain: '+ со строкой склеивает; -, наоборот, приводит операнды к числам (тема 5).'
+    },
+    {
+      section: 2,
+      code: 'console.log(Number("12px"));\nconsole.log(Number("12"));',
+      q: 'Что выведется?',
+      options: ['12 и 12', 'NaN и 12', '"12px" и 12', 'NaN и NaN'],
+      correct: 1,
+      explain: 'Number() превращает в число только строку, которая целиком читается как число; иначе — NaN (тема 5).'
+    },
+    {
+      section: 2,
+      q: 'Почему цену и количество стоит хранить числами, а не сразу собирать строку вида "150 ₽"?',
+      options: [
+        'Со строкой нельзя использовать console.log',
+        'После склеивания со знаком валюты повторная арифметика (например, умножение) даст NaN или неверный результат',
+        'const не работает со строками',
+        'typeof для строк работает медленнее'
+      ],
+      correct: 1,
+      explain: 'Считай числами, показывай строками — паттерн темы 5. Умножение строки "150 ₽" даст NaN.'
+    },
+    {
+      section: 2,
+      code: 'console.log("18" === 18);\nconsole.log(Number("18") === 18);',
+      q: 'Что выведется?',
+      options: ['true и true', 'false и false', 'false и true', 'true и false'],
+      correct: 2,
+      explain: '=== сравнивает и тип, и значение. Строка и число — разные типы, пока не привести явно через Number (тема 6).'
+    },
+    {
+      section: 2,
+      q: 'Пользователь ввёл в поле формы возраст. Как правильно сравнить его с числом 18 по правилам курса?',
+      options: [
+        'if (input.value == 18)',
+        'if (input.value === 18)',
+        'if (Number(input.value) === 18)',
+        'if (input.value === "18" || input.value === 18)'
+      ],
+      correct: 2,
+      explain: 'Сначала приведи тип сам через Number, потом сравнивай через === (тема 6). == в курсе не используется.'
+    },
+    {
+      section: 2,
+      code: 'console.log(NaN === NaN);',
+      q: 'Что выведется, и как правильно проверять, является ли значение NaN?',
+      options: [
+        'true; проверять через === NaN',
+        'false; проверять через Number.isNaN(value)',
+        'true; NaN всегда равен самому себе',
+        'Будет ошибка выполнения'
+      ],
+      correct: 1,
+      explain: 'NaN не равен даже самому себе. Правильная проверка — Number.isNaN() (темы 5–6).'
+    },
+    {
+      section: 2,
+      code: 'let selectedId;\nconsole.log(selectedId === null);\nconsole.log(selectedId === undefined);',
+      q: 'Что выведется?',
+      options: ['true, false', 'false, true', 'true, true', 'false, false'],
+      correct: 1,
+      explain: 'Объявленная, но не заполненная переменная — undefined, не null (тема 7).'
+    },
+    {
+      section: 2,
+      q: 'В чём разница между null и undefined согласно курсу?',
+      options: [
+        'Это одно и то же, просто разные названия',
+        'undefined — значение ещё не задано системой; null — программист сознательно указал "пусто"',
+        'null — только для чисел, undefined — только для строк',
+        'undefined используется в браузере, null — в Node.js'
+      ],
+      correct: 1,
+      explain: 'undefined = «ещё не клали», null = «положили специально пусто» (тема 7).'
+    },
+    {
+      section: 2,
+      code: 'const raw = "";\nconst zero = 0;\nconsole.log(raw === null);\nconsole.log(zero === undefined);',
+      q: 'Что выведется?',
+      options: [
+        'true, true — пустая строка и ноль это тоже "пустота"',
+        'false, false — это реальные значения своих типов, не null/undefined',
+        'true, false',
+        'false, true'
+      ],
+      correct: 1,
+      explain: 'Пустая строка и ноль — валидные значения, а не эквивалент null/undefined (тема 7).'
+    },
+
+    // ===== Раздел 3 — Управление потоком (8) =====
+    {
+      section: 3,
+      code: 'const score = 95;\nif (score >= 60) {\n  console.log("зачёт");\n} else if (score >= 90) {\n  console.log("отлично");\n} else {\n  console.log("пересдача");\n}',
+      q: 'Что выведется и почему?',
+      options: [
+        '"отлично", потому что 95 >= 90',
+        '"зачёт" — первое по порядку подходящее условие сработало раньше более узкого',
+        '"пересдача"',
+        'Выведутся обе строки — и "зачёт", и "отлично"'
+      ],
+      correct: 1,
+      explain: 'else if проверяются сверху вниз до первой правды; широкое условие, поставленное первым, перекрывает узкое (тема 8).'
+    },
+    {
+      section: 3,
+      code: 'const count = 0;\nif (count) {\n  console.log("есть значения");\n} else {\n  console.log("пусто");\n}',
+      q: 'Что выведется? Почему это частая ловушка?',
+      options: [
+        '"есть значения", так как 0 — валидное число',
+        '"пусто", т.к. 0 приводится к false, хотя ноль — валидное количество, которое стоило проверять явно (count === 0)',
+        'Будет ошибка, if не принимает числа',
+        '"есть значения", так как count объявлена'
+      ],
+      correct: 1,
+      explain: '0 — falsy значение. Для чисел и счётчиков курс требует явное сравнение, а не голый if (тема 8).'
+    },
+    {
+      section: 3,
+      code: 'const status = "ok";\nswitch (status) {\n  case "ok":\n    console.log("успех");\n  case "pending":\n    console.log("ждём");\n    break;\n  default:\n    console.log("неизвестно");\n}',
+      q: 'Что выведется?',
+      options: ['"успех"', '"успех" и "ждём"', '"ждём"', '"неизвестно"'],
+      correct: 1,
+      explain: 'В case "ok" нет break — выполнение проваливается в следующий case (тема 8).'
+    },
+    {
+      section: 3,
+      code: 'let n = 5;\nwhile (n > 0) {\n  console.log(n);\n}',
+      q: 'Что произойдёт при запуске?',
+      options: [
+        'Выведет числа от 5 до 1',
+        'Бесконечный цикл: n никогда не меняется, условие всегда true',
+        'Ошибка: while не может использовать let',
+        'Выведет одно число 5'
+      ],
+      correct: 1,
+      explain: 'В теле не меняется n — условие остаётся истинным навсегда (тема 9).'
+    },
+    {
+      section: 3,
+      code: 'for (let i = 1; i <= 10; i = i + 1) {\n  if (i % 2 === 0) {\n    continue;\n  }\n  if (i === 7) {\n    break;\n  }\n  console.log(i);\n}',
+      q: 'Какие числа выведутся?',
+      options: ['1 3 5', '1 2 3 4 5 6', '1 3 5 7', '2 4 6'],
+      correct: 0,
+      explain: 'Чётные пропускаются через continue; при i===7 срабатывает break до console.log — семёрка не печатается (тема 9).'
+    },
+    {
+      section: 3,
+      q: 'Почему для перебора элементов массива курс рекомендует for...of, а не for...in?',
+      options: [
+        'for...in работает только со строками',
+        'for...in предназначен для ключей объекта и может дать неожиданные/лишние результаты на массиве',
+        'for...of работает быстрее в любом случае',
+        'for...in не поддерживается в браузерах'
+      ],
+      correct: 1,
+      explain: 'for...in — для объектов; на массивах это привычка, которая путает (тема 9).'
+    },
+    {
+      section: 3,
+      code: 'try {\n  const data = JSON.parse("{ не json }");\n  console.log(data);\n} catch (error) {\n  console.log("ошибка:", error.message);\n}\nconsole.log("готово");',
+      q: 'Что выведется?',
+      options: [
+        'Только "готово" — ошибка молча проглатывается',
+        '"ошибка: ..." и затем "готово" — код продолжает работу после catch',
+        'Скрипт полностью остановится на строке с JSON.parse',
+        '"готово", затем "ошибка: ..."'
+      ],
+      correct: 1,
+      explain: 'catch перехватывает исключение, и выполнение файла продолжается после блока try/catch (тема 10).'
+    },
+    {
+      section: 3,
+      code: 'try {\n  console.log("A");\n} catch (e) {}',
+      q: 'Что не так с этим кодом по правилам курса?',
+      options: [
+        'Ничего, это правильный способ обработки ошибок',
+        'Пустой catch «съедает» возможную ошибку без объяснения — хуже, чем падение с понятным сообщением',
+        'try нельзя использовать без throw',
+        'Нужно обязательно добавить finally'
+      ],
+      correct: 1,
+      explain: 'Пустой catch превращает баг в тишину. Лови то, что умеешь объяснить (тема 10).'
+    },
+
+    // ===== Раздел 4 — Функции (8) =====
+    {
+      section: 4,
+      code: 'function shout(text) {\n  console.log(text);\n}\nconst out = shout("привет");\nconsole.log(out);',
+      q: 'Что выведется во втором console.log?',
+      options: ['"привет"', 'undefined, потому что shout ничего не возвращает через return', 'null', 'Будет ошибка выполнения'],
+      correct: 1,
+      explain: 'Печать — не возврат. Без return результат вызова — undefined (тема 11).'
+    },
+    {
+      section: 4,
+      code: 'function describe(age) {\n  if (age < 18) {\n    return "рано";\n  }\n  return "можно";\n}\nconsole.log(describe(15));\nconsole.log(describe(20));',
+      q: 'Что выведется?',
+      options: ['"можно" и "можно"', '"рано" и "можно"', '"рано" и "рано"', 'undefined и undefined'],
+      correct: 1,
+      explain: 'Два return — два выхода из функции в зависимости от условия (тема 11).'
+    },
+    {
+      section: 4,
+      q: 'Чем параметр отличается от аргумента?',
+      options: [
+        'Это два названия одного и того же понятия',
+        'Параметр — имя коробки внутри объявления функции; аргумент — конкретное значение, переданное при вызове',
+        'Параметр используется только в стрелочных функциях',
+        'Аргумент — обязательно число, параметр — любое значение'
+      ],
+      correct: 1,
+      explain: 'Тема 11: параметр — имя внутри объявления, аргумент — значение на конкретном вызове.'
+    },
+    {
+      section: 4,
+      code: 'const f = (x) => {\n  x + 1;\n};\nconsole.log(f(5));',
+      q: 'Что выведется?',
+      options: ['6', 'undefined, потому что в блоке { } нет явного return', '5', 'Ошибка синтаксиса'],
+      correct: 1,
+      explain: 'Блочная форма стрелочной функции требует явный return, иначе результат — undefined (тема 12).'
+    },
+    {
+      section: 4,
+      code: 'console.log(double(4));\nconst double = (n) => n * 2;',
+      q: 'Что произойдёт?',
+      options: [
+        'Выведется 8',
+        'Ошибка: double использована до объявления const (в отличие от function, который можно вызывать выше объявления в файле)',
+        'Выведется undefined',
+        'Выведется NaN'
+      ],
+      correct: 1,
+      explain: 'Стрелка — значение в const, а не именованное объявление функции: использовать её нужно после строки объявления (тема 12).'
+    },
+    {
+      section: 4,
+      code: 'const title = "курс";\n\nfunction show() {\n  const title = "урок";\n  console.log(title);\n}\n\nshow();\nconsole.log(title);',
+      q: 'Что выведется?',
+      options: [
+        '"урок" и "урок"',
+        '"курс" и "курс"',
+        '"урок" и "курс" — внутреннее имя title затеняет внешнее только внутри функции',
+        'Ошибка: title объявлена дважды'
+      ],
+      correct: 2,
+      explain: 'Тень имени: внутреннее объявление закрывает внешнее только на время тела функции (тема 13).'
+    },
+    {
+      section: 4,
+      code: 'function make() {\n  const secret = 42;\n  return secret + 1;\n}\nmake();\nconsole.log(secret);',
+      q: 'Что произойдёт?',
+      options: [
+        'Выведется 43',
+        'Выведется 42',
+        'ReferenceError: secret is not defined — переменная существует только во время выполнения make',
+        'Выведется undefined'
+      ],
+      correct: 2,
+      explain: 'Внутреннее наружу не вытекает: комната функции закрывается после return (тема 13).'
+    },
+    {
+      section: 4,
+      code: 'const tax = 0.2;\n\nfunction total(price) {\n  return price + price * tax;\n}',
+      q: 'Почему функция total может использовать tax, хотя он не передан параметром?',
+      options: [
+        'Это ошибка, так делать нельзя',
+        'tax — глобальная переменная, доступ к любым переменным всегда открыт',
+        'tax объявлен в том же файле снаружи функции — по лексическим правилам он виден внутри тела функции',
+        'tax автоматически становится параметром функции'
+      ],
+      correct: 2,
+      explain: 'Лексическое окружение: функция видит переменные, объявленные снаружи по месту в тексте файла (тема 13).'
+    },
+
+    // ===== Раздел 5 — Объекты и массивы (8) =====
+    {
+      section: 5,
+      code: 'const user = { name: "Анна", age: 20 };\nconsole.log(user.phone);',
+      q: 'Что выведется?',
+      options: ['null', 'undefined — поля phone нет на карточке объекта', '"" (пустая строка)', 'Ошибка: property phone does not exist'],
+      correct: 1,
+      explain: 'Обращение к несуществующему полю объекта даёт undefined, а не ошибку (тема 14).'
+    },
+    {
+      section: 5,
+      code: 'const counter = {\n  value: 0,\n  bump() {\n    this.value = this.value + 1;\n  },\n};\ncounter.bump();\ncounter.bump();\nconsole.log(counter.value);',
+      q: 'Что выведется?',
+      options: ['0', '1', '2', 'undefined'],
+      correct: 2,
+      explain: 'this внутри метода — объект перед точкой на момент вызова; bump вызывается дважды (тема 14).'
+    },
+    {
+      section: 5,
+      code: 'const prices = [150, 200, 90];\nconst cheap = prices.filter((p) => p < 100);\nconsole.log(cheap);\nconsole.log(prices.length);',
+      q: 'Что выведется?',
+      options: ['[90] и 3 — filter не меняет исходный массив', '[90] и 2', '[150, 200] и 3', 'undefined и 3'],
+      correct: 0,
+      explain: 'filter возвращает новый массив, исходный prices не трогает (тема 15).'
+    },
+    {
+      section: 5,
+      code: 'const items = [10, 20, 30];\nconst found = items.find((x) => x > 100);\nconsole.log(found);',
+      q: 'Что выведется?',
+      options: ['[]', 'undefined — ни один элемент не подошёл под условие', 'null', '0'],
+      correct: 1,
+      explain: 'find возвращает undefined, если не нашёл подходящий элемент (в отличие от filter, который вернул бы пустой массив) (тема 15).'
+    },
+    {
+      section: 5,
+      code: 'const nums = [1, 2, 3];\nconst doubled = nums.map((n) => {\n  n * 2;\n});\nconsole.log(doubled);',
+      q: 'Что выведется?',
+      options: ['[2, 4, 6]', '[undefined, undefined, undefined] — в блочном теле колбэка забыт return', '[1, 2, 3]', 'Ошибка выполнения'],
+      correct: 1,
+      explain: 'Блок { } в колбэке требует явный return, иначе каждый элемент нового массива — undefined (темы 12, 15).'
+    },
+    {
+      section: 5,
+      code: 'const user = { name: "Анна" };\nconst alias = user;\nalias.name = "Павел";\nconsole.log(user.name);',
+      q: 'Что выведется?',
+      options: ['"Анна"', '"Павел" — alias и user указывают на один и тот же объект', 'undefined', 'Ошибка: нельзя менять поле через alias'],
+      correct: 1,
+      explain: 'Объект копируется по ссылке: alias и user — две таблички на один склад (тема 16).'
+    },
+    {
+      section: 5,
+      code: 'const prices = [1, 2];\nconst copy = [...prices];\ncopy.push(3);\nconsole.log(prices);\nconsole.log(copy);',
+      q: 'Что выведется?',
+      options: ['[1, 2, 3] и [1, 2, 3]', '[1, 2] и [1, 2, 3] — [...] создаёт новый массив', '[1, 2, 3] и [1, 2]', 'Будет ошибка'],
+      correct: 1,
+      explain: 'Оператор ... создаёт новый склад (поверхностную копию), поэтому push в copy не влияет на prices (тема 16).'
+    },
+    {
+      section: 5,
+      code: 'const order = { buyer: { name: "Анна" } };\nconst copy = { ...order };\ncopy.buyer.name = "Павел";\nconsole.log(order.buyer.name);',
+      q: 'Что выведется и почему?',
+      options: [
+        '"Анна", потому что {...} копирует всё вглубь',
+        '"Павел" — поверхностная копия скопировала только верхний уровень, вложенный объект buyer остался общим',
+        'undefined',
+        'Будет ошибка выполнения'
+      ],
+      correct: 1,
+      explain: '{...} — копия только одного этажа. Вложенные объекты остаются общей ссылкой (тема 16).'
+    },
+
+    // ===== Раздел 6 — DOM и события (7) =====
+    {
+      section: 6,
+      code: 'const el = document.querySelector("#nope");\nconsole.log(el.textContent);',
+      q: 'Что произойдёт, если элемента с id="nope" нет на странице?',
+      options: [
+        'Выведется пустая строка',
+        'Выведется undefined',
+        'Ошибка: нельзя прочитать textContent у null — querySelector вернул null, а не элемент',
+        'Выведется "nope"'
+      ],
+      correct: 2,
+      explain: 'querySelector возвращает null, если узел не найден; читать поле у null — ошибка (тема 17).'
+    },
+    {
+      section: 6,
+      q: 'Почему для вставки текста от пользователя правило курса требует textContent, а не innerHTML?',
+      options: [
+        'innerHTML работает медленнее',
+        'textContent вставляет символы как текст, а innerHTML разбирает их как разметку — риск вставить чужой вредоносный HTML',
+        'innerHTML не поддерживается в современных браузерах',
+        'Разницы нет, это синонимы'
+      ],
+      correct: 1,
+      explain: 'Данные пользователя — в textContent, это защита от вставки чужой разметки (тема 17).'
+    },
+    {
+      section: 6,
+      code: 'const button = document.querySelector("#go");\nfunction onClick() {\n  console.log("клик");\n}\nonClick;\nbutton.addEventListener("click", onClick);',
+      q: 'Строка onClick; (без скобок) — что произойдёт при запуске файла, ещё до какого-либо клика?',
+      options: [
+        'Функция вызовется и выведет "клик"',
+        'Ничего не выведется — так передаётся сама функция как значение, а не вызывается',
+        'Ошибка синтаксиса',
+        'Выведется undefined'
+      ],
+      correct: 1,
+      explain: 'onClick без скобок — это ссылка на функцию, а не вызов (темы 11, 18).'
+    },
+    {
+      section: 6,
+      code: 'button.onclick = function () {\n  console.log("клик 1");\n};\nbutton.onclick = function () {\n  console.log("клик 2");\n};',
+      q: 'Пользователь кликает по кнопке один раз. Что выведется?',
+      options: ['"клик 1" и "клик 2"', 'только "клик 2" — второе присваивание onclick затирает первое', 'только "клик 1"', 'Ничего'],
+      correct: 1,
+      explain: 'Свойство onclick держит только одну функцию, в отличие от addEventListener (тема 18).'
+    },
+    {
+      section: 6,
+      q: 'Почему курс рекомендует addEventListener, а не атрибут onclick="..." в HTML?',
+      options: [
+        'onclick вообще не работает в современных браузерах',
+        'addEventListener позволяет несколько слушателей и не смешивает логику JS с разметкой',
+        'onclick работает только с кнопками, не с другими тегами',
+        'Разницы нет, это вопрос вкуса'
+      ],
+      correct: 1,
+      explain: 'Логика в JS-файле, не в HTML-атрибуте — легче искать и снимать слушатели (тема 18).'
+    },
+    {
+      section: 6,
+      code: 'form.addEventListener("submit", (event) => {\n  const raw = ageInput.value;\n  const age = Number(raw);\n  out.textContent = age >= 18 ? "можно" : "рано";\n});',
+      q: 'В обработчике не вызван event.preventDefault(). Что произойдёт при отправке формы?',
+      options: [
+        'Ничего плохого, всё отработает как задумано',
+        'Браузер выполнит действие по умолчанию — перезагрузит страницу, и результат работы скрипта не будет виден',
+        'Форма просто не отправится',
+        'age всегда будет NaN'
+      ],
+      correct: 1,
+      explain: 'Без preventDefault браузер уносит форму и перезагружает страницу, стирая память скрипта (тема 19).'
+    },
+    {
+      section: 6,
+      code: 'const raw = ageInput.value;\nconsole.log(typeof raw);',
+      q: 'Поле ввода пустое. Что выведется?',
+      options: ['"undefined"', '"null"', '"string" — value поля ввода всегда строка, даже пустая', '"number"'],
+      correct: 2,
+      explain: 'value поля ввода — всегда строка, даже когда поле пустое: "" (тема 19).'
+    },
+
+    // ===== Раздел 7 — Асинхронность (13) =====
+    {
+      section: 7,
+      code: 'console.log("А");\nsetTimeout(() => {\n  console.log("Б");\n}, 1000);\nconsole.log("В");',
+      q: 'В каком порядке появятся строки?',
+      options: ['А, Б, В', 'А, В, Б', 'Б, А, В', 'В, А, Б'],
+      correct: 1,
+      explain: 'setTimeout только ставит задачу и не ждёт; синхронный код продолжается сразу (тема 20).'
+    },
+    {
+      section: 7,
+      code: 'function later() {\n  console.log("время");\n}\nsetTimeout(later(), 500);',
+      q: 'Что не так с этим кодом?',
+      options: [
+        'Всё верно, через 500 мс выведется "время"',
+        'later() вызывается немедленно (скобки!), а в setTimeout передаётся результат вызова (undefined), а не сама функция',
+        'setTimeout не принимает функции без параметров',
+        'Нужно убрать 500'
+      ],
+      correct: 1,
+      explain: 'В таймер нужно передавать функцию без скобок; со скобками она вызывается сразу (тема 20).'
+    },
+    {
+      section: 7,
+      q: 'Почему setTimeout(fn, 0) не выполняет fn мгновенно?',
+      options: [
+        '0 — минимальное разрешённое время, поэтому оно округляется до 1000',
+        'Ноль всё равно ставит задачу в очередь; она выполнится только после того, как весь текущий синхронный код закончится',
+        'Это баг браузера',
+        'fn выполнится до текущего синхронного кода'
+      ],
+      correct: 1,
+      explain: 'Ноль означает «как только освободишься», а не «прямо сейчас» (темы 20, 24).'
+    },
+    {
+      section: 7,
+      code: 'Promise.resolve(2)\n  .then((n) => n + 1)\n  .then((n) => {\n    console.log(n);\n  });',
+      q: 'Что выведется?',
+      options: ['2', '3', 'undefined', 'Будет ошибка'],
+      correct: 1,
+      explain: 'return из первого .then (2+1=3) становится значением для второго .then (тема 21).'
+    },
+    {
+      section: 7,
+      code: 'const ticket = new Promise((resolve, reject) => {\n  reject(new Error("нет молока"));\n});\nticket.then((drink) => {\n  console.log("получили", drink);\n});',
+      q: 'К этой цепочке не добавлен .catch. Что произойдёт?',
+      options: [
+        'Ничего страшного, .then просто не сработает',
+        'Появится "Unhandled Promise Rejection" — ошибка не обработана',
+        'Выведется "получили undefined"',
+        'Промис автоматически повторит попытку'
+      ],
+      correct: 1,
+      explain: 'Без .catch отклонённый промис приводит к необработанной ошибке в консоли (тема 21).'
+    },
+    {
+      section: 7,
+      code: 'Promise.resolve(1)\n  .then((n) => {\n    n + 10;\n  })\n  .then((n) => {\n    console.log(n);\n  });',
+      q: 'Что выведется?',
+      options: ['11', 'undefined — в первом .then забыт return', '1', 'Будет ошибка'],
+      correct: 1,
+      explain: 'Без return значение следующего .then — undefined, как и в блочных стрелочных функциях (тема 21).'
+    },
+    {
+      section: 7,
+      code: 'function wait(ms) {\n  return new Promise((resolve) => setTimeout(() => resolve(ms), ms));\n}\n\nasync function run() {\n  console.log("до");\n  await wait(200);\n  console.log("после");\n}\n\nrun();\nconsole.log("снаружи");',
+      q: 'В каком порядке появятся строки?',
+      options: ['"до", "после", "снаружи"', '"до", "снаружи", "после"', '"снаружи", "до", "после"', '"после", "до", "снаружи"'],
+      correct: 1,
+      explain: 'await ставит паузу внутри async-функции, но не блокирует код снаружи неё (тема 22).'
+    },
+    {
+      section: 7,
+      code: 'async function load() {\n  try {\n    const value = await Promise.reject(new Error("нет сети"));\n    console.log(value);\n  } catch (error) {\n    console.log(error.message);\n  }\n}\nload();',
+      q: 'Что выведется?',
+      options: ['"нет сети"', 'undefined', 'Ничего не выведется', 'Программа упадёт с необработанной ошибкой'],
+      correct: 0,
+      explain: 'await превращает reject в исключение, которое ловит try/catch (тема 22).'
+    },
+    {
+      section: 7,
+      code: 'async function f() {\n  return 5;\n}\nconst result = f();\nconsole.log(result);',
+      q: 'Что выведется?',
+      options: ['5', 'Promise-объект, а не число 5 напрямую — async-функция всегда возвращает Promise', 'undefined', 'NaN'],
+      correct: 1,
+      explain: 'async function всегда оборачивает результат в Promise; чтобы получить 5, нужен await f() или .then (тема 22).'
+    },
+    {
+      section: 7,
+      code: 'async function load() {\n  const response = await fetch("https://example.com/todos/9999999");\n  const data = await response.json();\n  console.log(data);\n}\nload();',
+      q: 'Сервер вернул статус 404, но соединение прошло успешно. Что произойдёт согласно курсу?',
+      options: [
+        'await fetch выбросит исключение, и код не дойдёт до response.json()',
+        'fetch не бросит ошибку сам по себе — код продолжит выполнение, response.ok будет false, но в этом примере это не проверяется',
+        'response будет равен null',
+        'json() автоматически выбросит ошибку "404"'
+      ],
+      correct: 1,
+      explain: 'fetch считает 404 успешным промисом — проверять нужно вручную через response.ok (тема 23).'
+    },
+    {
+      section: 7,
+      q: 'Почему после await fetch(url) требуется ещё один await response.json()?',
+      options: [
+        'Это просто стилистическое требование, можно обойтись одним await',
+        'fetch разрешает Promise с «конвертом» ответа (статус, заголовки), а тело нужно распарсить отдельно — это тоже асинхронная операция',
+        'json() — синхронный метод, второй await не нужен',
+        'response.json() возвращает не Promise, а сразу объект'
+      ],
+      correct: 1,
+      explain: 'Два ожидания: сначала ответ (конверт), потом тело (тема 23).'
+    },
+    {
+      section: 7,
+      code: 'console.log("1");\nsetTimeout(() => console.log("2"), 0);\nPromise.resolve().then(() => console.log("3"));\nconsole.log("4");',
+      q: 'В каком порядке выведутся числа?',
+      options: ['1, 2, 3, 4', '1, 4, 3, 2', '1, 4, 2, 3', '1, 3, 4, 2'],
+      correct: 1,
+      explain: 'Сначала весь синхронный код (1, 4), затем очередь промисов (3), затем таймер (2) (тема 24).'
+    },
+    {
+      section: 7,
+      q: 'Может ли обработчик клика прервать выполняющуюся длинную синхронную функцию (например, огромный for)?',
+      options: [
+        'Да, клики имеют наивысший приоритет и прерывают любой код',
+        'Нет — JavaScript выполняет одну задачу за раз; клик встанет в очередь и будет обработан только после завершения текущей функции',
+        'Да, но только если использовать async',
+        'Это зависит от браузера'
+      ],
+      correct: 1,
+      explain: 'Один повар — одна задача за раз. Событие ждёт своей очереди (тема 24).'
+    },
+
+    // ===== Раздел 8 — Модули (2) =====
+    {
+      section: 8,
+      code: '// math.js\nexport function add(a, b) {\n  return a + b;\n}\nfunction secret() {\n  return 42;\n}\n\n// app.js\nimport { add, secret } from "./math.js";\nconsole.log(add(2, 3));\nconsole.log(secret());',
+      q: 'Что произойдёт при запуске app.js?',
+      options: [
+        'Выведется 5 и 42',
+        'Ошибка загрузки модуля — secret не экспортирован из math.js',
+        'Выведется 5 и undefined',
+        'secret автоматически экспортируется, потому что находится в том же файле'
+      ],
+      correct: 1,
+      explain: 'Импортировать можно только то, что явно экспортировано (тема 25).'
+    },
+    {
+      section: 8,
+      q: 'Почему в браузере нужен атрибут type="module" на теге script, чтобы import заработал?',
+      options: [
+        'Это просто рекомендация, без него всё тоже работает',
+        'Без него браузер разбирает файл как обычный скрипт, где import/export — синтаксическая ошибка',
+        'type="module" нужен только для CSS-модулей',
+        'Это требование только для Node.js, не для браузера'
+      ],
+      correct: 1,
+      explain: 'Атрибут включает разбор ESM; без него import — синтаксическая ошибка (тема 25).'
+    },
+
+    // ===== Раздел 9 — Аккуратный код (2) =====
+    {
+      section: 9,
+      code: 'function f(a) {\n  let x = Number(a);\n  if (a == "" || x != x) return "нет";\n  if (x >= 18) return "ok";\n  return "no";\n}',
+      q: 'Какая из проблем этого кода противоречит правилам курса?',
+      options: [
+        'Слишком короткие имена (f, a, x), использование == вместо === и трюк x != x вместо Number.isNaN(x)',
+        'Функция вообще не должна использовать if',
+        'return можно использовать только один раз в функции',
+        'Здесь нет проблем, это нормальный рабочий код'
+      ],
+      correct: 0,
+      explain: 'Курс требует понятные имена, строгое сравнение и явный Number.isNaN вместо трюков (тема 26).'
+    },
+    {
+      section: 9,
+      q: 'Когда, по правилу курса, стоит «резать» длинную функцию-обработчик на несколько маленьких?',
+      options: [
+        'Никогда, чем длиннее функция, тем она надёжнее',
+        'Когда в одной функции смешаны разные обязанности (например, разбор данных, проверка и работа с DOM) и её сложно описать одним предложением',
+        'Только если функция превышает 1000 строк',
+        'Только если этого требует линтер'
+      ],
+      correct: 1,
+      explain: 'Одна функция — одна мысль; если не можешь описать её одним предложением — режь (тема 26).'
+    }
+  ];
+
+  // ---------- state ----------
+  var STORAGE_PROGRESS = "jsJuniorTest.progress.v1";
+  var STORAGE_RESULT = "jsJuniorTest.lastResult.v1";
+
+  var current = 0;
+  var answers = new Array(QUESTIONS.length).fill(null);
+
+  var screenStart = document.getElementById("screen-start");
+  var screenQuiz = document.getElementById("screen-quiz");
+  var screenResults = document.getElementById("screen-results");
+
+  function sectionInfo(id) {
+    for (var i = 0; i < SECTIONS.length; i++) {
+      if (SECTIONS[i].id === id) return SECTIONS[i];
+    }
+    return { title: "—", file: "" };
+  }
+
+  function saveProgress() {
+    try {
+      localStorage.setItem(STORAGE_PROGRESS, JSON.stringify({ current: current, answers: answers }));
+    } catch (e) {}
+  }
+
+  function loadProgress() {
+    try {
+      var raw = localStorage.getItem(STORAGE_PROGRESS);
+      if (!raw) return null;
+      var parsed = JSON.parse(raw);
+      if (parsed && Array.isArray(parsed.answers) && parsed.answers.length === QUESTIONS.length) {
+        return parsed;
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  function clearProgress() {
+    try { localStorage.removeItem(STORAGE_PROGRESS); } catch (e) {}
+  }
+
+  function saveLastResult(scoreObj) {
+    try { localStorage.setItem(STORAGE_RESULT, JSON.stringify(scoreObj)); } catch (e) {}
+  }
+
+  function loadLastResult() {
+    try {
+      var raw = localStorage.getItem(STORAGE_RESULT);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // ---------- start screen ----------
+  function initStartScreen() {
+    var progress = loadProgress();
+    var lastResult = loadLastResult();
+    var resumeBanner = document.getElementById("resumeBanner");
+    var btnResume = document.getElementById("btnResume");
+    var lastResultBanner = document.getElementById("lastResultBanner");
+
+    if (progress && progress.answers.some(function (a) { return a !== null; })) {
+      var answeredCount = progress.answers.filter(function (a) { return a !== null; }).length;
+      resumeBanner.textContent = "У вас есть незавершённая попытка: отвечено " + answeredCount + " из " + QUESTIONS.length + " вопросов.";
+      resumeBanner.classList.remove("hidden");
+      btnResume.classList.remove("hidden");
+    }
+
+    if (lastResult) {
+      var pct = Math.round((lastResult.score / lastResult.total) * 100);
+      lastResultBanner.textContent = "Последний результат: " + lastResult.score + " / " + lastResult.total + " (" + pct + "%), " + lastResult.date + ".";
+      lastResultBanner.classList.remove("hidden");
+    }
+  }
+
+  document.getElementById("btnStart").addEventListener("click", function () {
+    current = 0;
+    answers = new Array(QUESTIONS.length).fill(null);
+    clearProgress();
+    startQuiz();
+  });
+
+  document.getElementById("btnResume").addEventListener("click", function () {
+    var progress = loadProgress();
+    if (progress) {
+      current = progress.current || 0;
+      answers = progress.answers;
+    }
+    startQuiz();
+  });
+
+  function startQuiz() {
+    screenStart.classList.add("hidden");
+    screenResults.classList.add("hidden");
+    screenQuiz.classList.remove("hidden");
+    renderQuestion();
+  }
+
+  // ---------- quiz screen ----------
+  var qSectionTag = document.getElementById("qSectionTag");
+  var qText = document.getElementById("qText");
+  var qCode = document.getElementById("qCode");
+  var qOptions = document.getElementById("qOptions");
+  var progressInner = document.getElementById("progressInner");
+  var progressText = document.getElementById("progressText");
+  var progressPercent = document.getElementById("progressPercent");
+  var btnPrev = document.getElementById("btnPrev");
+  var btnNext = document.getElementById("btnNext");
+
+  function renderQuestion() {
+    var item = QUESTIONS[current];
+    var sec = sectionInfo(item.section);
+
+    qSectionTag.textContent = "Раздел " + item.section + " · " + sec.title;
+    qText.textContent = item.q;
+
+    if (item.code) {
+      qCode.textContent = item.code;
+      qCode.classList.remove("hidden");
+    } else {
+      qCode.textContent = "";
+      qCode.classList.add("hidden");
+    }
+
+    qOptions.innerHTML = "";
+    item.options.forEach(function (optText, idx) {
+      var div = document.createElement("div");
+      div.className = "option" + (answers[current] === idx ? " selected" : "");
+      div.setAttribute("role", "button");
+      div.setAttribute("tabindex", "0");
+
+      var bullet = document.createElement("span");
+      bullet.className = "bullet";
+
+      var label = document.createElement("span");
+      label.textContent = optText;
+
+      div.appendChild(bullet);
+      div.appendChild(label);
+
+      div.addEventListener("click", function () {
+        answers[current] = idx;
+        saveProgress();
+        renderQuestion();
+      });
+
+      qOptions.appendChild(div);
+    });
+
+    var pct = Math.round(((current) / QUESTIONS.length) * 100);
+    progressInner.style.width = pct + "%";
+    progressText.textContent = "Вопрос " + (current + 1) + " из " + QUESTIONS.length;
+    progressPercent.textContent = pct + "%";
+
+    btnPrev.disabled = current === 0;
+    btnNext.textContent = current === QUESTIONS.length - 1 ? "Завершить тест" : "Далее →";
+    btnNext.disabled = answers[current] === null;
+  }
+
+  btnPrev.addEventListener("click", function () {
+    if (current > 0) {
+      current--;
+      renderQuestion();
+    }
+  });
+
+  btnNext.addEventListener("click", function () {
+    if (answers[current] === null) return;
+    if (current < QUESTIONS.length - 1) {
+      current++;
+      saveProgress();
+      renderQuestion();
+    } else {
+      finishQuiz();
+    }
+  });
+
+  // ---------- results screen ----------
+  function finishQuiz() {
+    clearProgress();
+
+    var total = QUESTIONS.length;
+    var score = 0;
+    var perSection = {};
+    SECTIONS.forEach(function (s) { perSection[s.id] = { correct: 0, total: 0 }; });
+
+    var wrongItems = [];
+
+    QUESTIONS.forEach(function (item, idx) {
+      perSection[item.section].total++;
+      var isCorrect = answers[idx] === item.correct;
+      if (isCorrect) {
+        score++;
+        perSection[item.section].correct++;
+      } else {
+        wrongItems.push({ item: item, chosen: answers[idx] });
+      }
+    });
+
+    var pct = Math.round((score / total) * 100);
+
+    saveLastResult({
+      score: score,
+      total: total,
+      date: new Date().toLocaleDateString("ru-RU", { year: "numeric", month: "long", day: "numeric" })
+    });
+
+    screenQuiz.classList.add("hidden");
+    screenResults.classList.remove("hidden");
+
+    document.getElementById("scoreBig").textContent = score + " / " + total + " (" + pct + "%)";
+
+    var verdictEl = document.getElementById("scoreVerdict");
+    var verdict;
+    if (pct >= 85) {
+      verdict = "Отлично. Материал курса усвоен уверенно, можно двигаться дальше по программе.";
+    } else if (pct >= 65) {
+      verdict = "Хорошо, но есть пробелы. Посмотрите разделы с низким процентом ниже перед тем, как идти дальше.";
+    } else {
+      verdict = "Стоит повторить материал. Пройдитесь по разделам с наибольшим числом ошибок и вернитесь к тесту снова.";
+    }
+    verdictEl.textContent = verdict;
+
+    var barsContainer = document.getElementById("sectionBars");
+    barsContainer.innerHTML = "";
+    SECTIONS.forEach(function (s) {
+      var stat = perSection[s.id];
+      var secPct = stat.total > 0 ? Math.round((stat.correct / stat.total) * 100) : 0;
+
+      var row = document.createElement("div");
+      row.className = "section-bar-row";
+
+      var label = document.createElement("div");
+      label.textContent = s.title;
+
+      var track = document.createElement("div");
+      track.className = "section-bar-track";
+      var fill = document.createElement("div");
+      fill.className = "section-bar-fill " + (secPct >= 80 ? "fill-good" : secPct >= 50 ? "fill-mid" : "fill-bad");
+      fill.style.width = secPct + "%";
+      track.appendChild(fill);
+
+      var num = document.createElement("div");
+      num.style.textAlign = "right";
+      num.textContent = stat.correct + "/" + stat.total;
+
+      row.appendChild(label);
+      row.appendChild(track);
+      row.appendChild(num);
+      barsContainer.appendChild(row);
+    });
+
+    var reviewList = document.getElementById("reviewList");
+    var noMistakes = document.getElementById("noMistakes");
+    reviewList.innerHTML = "";
+
+    if (wrongItems.length === 0) {
+      noMistakes.classList.remove("hidden");
+    } else {
+      noMistakes.classList.add("hidden");
+      wrongItems.forEach(function (entry) {
+        var item = entry.item;
+        var sec = sectionInfo(item.section);
+
+        var box = document.createElement("div");
+        box.className = "review-item";
+
+        var tag = document.createElement("div");
+        tag.className = "review-tag";
+        tag.textContent = "Раздел " + item.section + " · " + sec.title + " · повторить: junior/topics/" + sec.file;
+        box.appendChild(tag);
+
+        var qEl = document.createElement("div");
+        qEl.className = "rq";
+        qEl.textContent = item.q;
+        box.appendChild(qEl);
+
+        if (item.code) {
+          var codeEl = document.createElement("pre");
+          codeEl.className = "code-block";
+          codeEl.textContent = item.code;
+          box.appendChild(codeEl);
+        }
+
+        var yourAnswer = document.createElement("div");
+        yourAnswer.className = "answer-line answer-wrong";
+        yourAnswer.textContent = "Ваш ответ: " + (entry.chosen === null ? "не отвечено" : item.options[entry.chosen]);
+        box.appendChild(yourAnswer);
+
+        var rightAnswer = document.createElement("div");
+        rightAnswer.className = "answer-line answer-right";
+        rightAnswer.textContent = "Правильный ответ: " + item.options[item.correct];
+        box.appendChild(rightAnswer);
+
+        var explain = document.createElement("div");
+        explain.className = "explain";
+        explain.textContent = item.explain;
+        box.appendChild(explain);
+
+        reviewList.appendChild(box);
+      });
+    }
+  }
+
+  document.getElementById("btnRestart").addEventListener("click", function () {
+    current = 0;
+    answers = new Array(QUESTIONS.length).fill(null);
+    clearProgress();
+    screenResults.classList.add("hidden");
+    screenStart.classList.remove("hidden");
+    initStartScreen();
+  });
+
+  // ---------- init ----------
+  initStartScreen();
+})();
+</script>
+</body>
+</html>
