@@ -1,5 +1,5 @@
 /**
- * Тема 6 — Типы функций
+ * Тема 7 (сетка) — типы функций. Папка topic_6 — старый номер.
  */
 export function area(width: number, height: number): number {
   // TODO

@@ -1,5 +1,5 @@
 /**
- * Тема 7 — Сужение
+ * Тема 8 (сетка) — сужение. Папка topic_7 — старый номер.
  */
 export function labelValue(value: string | number): string {
   // TODO: string → toUpperCase, иначе String

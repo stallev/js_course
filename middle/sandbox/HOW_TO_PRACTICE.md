@@ -1,7 +1,9 @@
 # Инструкция по выполнению упражнений
 
-> **Для кого:** студент, изучающий материалы курса.  
+> **Для кого:** студент слоя Middle (уже пишешь React/TS, интервью).  
 > **Цель:** закрепить тему практикой — предсказывать вывод, реализовывать функции, исправлять баги.
+
+Азбука JS: [`junior/sandbox/HOW_TO_PRACTICE.md`](../../junior/sandbox/HOW_TO_PRACTICE.md). Азбука TS без React: [`typescript/sandbox/HOW_TO_PRACTICE.md`](../../typescript/sandbox/HOW_TO_PRACTICE.md).
 
 ---
 

@@ -5,8 +5,28 @@
 **Стек:** Next.js · React · TypeScript  
 **Охват:** 45 тем · 14 разделов · ~78–110 часов самостоятельного изучения
 
-Этот каталог — слой **Middle**. Перед ним: чистый JS ([`../junior/README.md`](../junior/README.md)) и мост TypeScript без React ([`../typescript/README.md`](../typescript/README.md)). Хаб: [`../README.md`](../README.md). Стратегия: [`../COURSE_ROADMAP.md`](../COURSE_ROADMAP.md).  
+Этот каталог — слой **Middle**. Порядок в репозитории: [`junior/`](../junior/README.md) → [`typescript/`](../typescript/README.md) → **здесь**. Хаб: [`../README.md`](../README.md). Стратегия: [`../COURSE_ROADMAP.md`](../COURSE_ROADMAP.md).  
 npm-скрипты (`ts:watch`, `bridge:watch`, `next:dev`) запускаются **из корня** `js_course/`.
+
+---
+
+## Вход: уже пишу React / TS
+
+Слой **не** учит JavaScript и типы с нуля. Темы 1–28 сразу идут в глубину (Event Loop, TDZ, `this`, прототипы, интервью-головоломки) и в каждой теме есть блок «связь со стеком». Темы 29–45 — React 18–19, Next.js App Router, Redux Toolkit, Zustand.
+
+**Сюда, если:**
+
+- уже пишешь компоненты на React и TypeScript (или Next);
+- хочешь уверенно отвечать на JS-вопросы Middle FullStack и связать язык со стеком.
+
+**Сначала другие слои, если:**
+
+- ещё осваиваешь `let`, функции, DOM, `fetch` — [`../junior/README.md`](../junior/README.md);
+- умеешь JS, но аннотации, narrowing и `unknown` ещё непривычны — [`../typescript/README.md`](../typescript/README.md) (14 тем, без React).
+
+Тема **24** этого курса — сжатое повторение TS **для интервью** плюс Next/React, не замена мосту. Азбуку `: string`, `Promise<T>` и `import type` проходят в `typescript/`.
+
+Тексты тем 1–28 **не** переписываются под junior: ценность слоя — глубина и стек.
 
 ---
 
@@ -286,7 +306,7 @@ cd js_course
 npm install
 ```
 
-Затем:
+Если вход из блока [«Вход: уже пишу React / TS»](#вход-уже-пишу-react--ts) честный — дальше:
 
 1. Открой [`topics/section_1_engine.md`](topics/section_1_engine.md) — тема 1 (Event Loop)
 2. Изучи теорию, схемы, примеры кода

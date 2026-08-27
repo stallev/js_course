@@ -31,11 +31,11 @@ const pages = [
   },
   {
     n: 4,
-    title: "Тема 4 — Объекты и type",
+    title: "Тема 4 — Объекты, кортежи, type",
     fn: "runLesson",
     id: "4.1",
     name: "describeLesson",
-    desc: "type Lesson и лог «id: title».",
+    desc: "type Lesson, лог «id: title», кортеж [id, title].",
   },
   {
     n: 5,
@@ -46,16 +46,25 @@ const pages = [
     desc: "Строка из id; черновик без названия.",
   },
   {
-    n: 6,
-    title: "Тема 6 — Типы функций",
-    fn: "runFns",
+    n: "6_alias",
+    folder: "topic_6_alias",
+    title: "Тема 6 — type vs interface",
+    fn: "runStaff",
     id: "6.1",
+    name: "describeStaff",
+    desc: "interface User, type Staff = User & роль, лог «имя: роль».",
+  },
+  {
+    n: 6,
+    title: "Тема 7 (папка topic_6) — Типы функций",
+    fn: "runFns",
+    id: "7p.1",
     name: "area / logStatus",
     desc: "Площадь 3×4 и лог статуса.",
   },
   {
     n: 7,
-    title: "Тема 7 — Сужение",
+    title: "Тема 8 (папка topic_7) — Сужение",
     fn: "runLabel",
     id: "7.1",
     name: "labelValue",
@@ -63,20 +72,52 @@ const pages = [
   },
   {
     n: 8,
-    title: "Тема 8 — Дженерики",
+    title: "Тема 9 (папка topic_8) — Дженерики и Promise",
     fn: "runFirst",
-    id: "8.1",
-    name: "first",
-    desc: "Первый элемент массива чисел и строк.",
+    id: "9.1",
+    name: "first / asPromise",
+    desc: "Первый элемент массивов; await asPromise(42).",
+  },
+  {
+    n: 10,
+    title: "Тема 10 — unknown и type guard",
+    fn: "runGuards",
+    id: "10.1",
+    name: "isString / asString",
+    desc: "Предикат x is string; строка как есть, иначе пустая.",
   },
   {
     n: 9,
-    title: "Тема 9 — unknown и DOM",
-    fn: "runTopic9",
-    id: "9.1",
-    name: "asString / fillTitle",
-    desc: "asString для unknown; #title → «TS».",
+    title: "Тема 11 (папка topic_9) — DOM",
+    fn: "runFillTitle",
+    id: "11.1",
+    name: "fillTitle",
+    desc: "#title → «TS»; без document — сообщение в лог.",
     demo: `<h3>Песочница DOM</h3>\n  <h1 id="title">Курс</h1>`,
+  },
+  {
+    n: 12,
+    title: "Тема 12 — Discriminated union",
+    fn: "runState",
+    id: "12.1",
+    name: "labelState",
+    desc: "Три статуса; в default — never.",
+  },
+  {
+    n: 13,
+    title: "Тема 13 — JSON как unknown",
+    fn: "runParse",
+    id: "13.1",
+    name: "parseUser",
+    desc: "Разбор unknown → User | null, без живого fetch.",
+  },
+  {
+    n: 14,
+    title: "Тема 14 — import type",
+    fn: "runImported",
+    id: "14.1",
+    name: "describeImported",
+    desc: "Тип Lesson из lesson.ts, лог через formatLesson.",
   },
 ];
 
@@ -124,7 +165,7 @@ ${demo}<section>
 }
 
 for (const p of pages) {
-  const dir = join(root, "topics", `topic_${p.n}`, "browser");
+  const dir = join(root, "topics", p.folder ?? `topic_${p.n}`, "browser");
   mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, "index.html"), html(p), "utf8");
 }

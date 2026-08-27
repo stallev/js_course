@@ -1,10 +1,6 @@
 /**
- * Тема 9 — any vs unknown, DOM
+ * Тема 11 (сетка) — DOM Element | null. Папка topic_9 — старый номер.
  */
-export function asString(raw: unknown): string {
-  return typeof raw === "string" ? raw : "";
-}
-
 export function fillTitle(): void {
   if (typeof document === "undefined") {
     console.log("открой browser/index.html");
@@ -17,14 +13,12 @@ export function fillTitle(): void {
   el.textContent = "TS";
 }
 
-export function runTopic9(): void {
-  console.log(asString("ок"));
-  console.log(asString(9));
+export function runFillTitle(): void {
   fillTitle();
 }
 
 if (typeof document === "undefined") {
-  runTopic9();
+  runFillTitle();
 }
 
-// Инсайт: unknown и null — честные дыры. any и ! их прячут.
+// Инсайт: Element | null — честная дыра поиска. if (!el) сужает.

@@ -698,6 +698,8 @@ export default defineConfig({
 
 🔗 Связь с темой 23: TypeScript компилируется в JavaScript (ESM или CJS) — настройка `module` в tsconfig.json напрямую связана с тем, что мы изучали.
 
+**Не первая встреча с TypeScript.** Азбука аннотаций, narrowing, `unknown`, `Promise<T>` и `import type` — слой [`typescript/`](../../typescript/README.md) (14 тем, без React). Ниже — сжатое повторение **для интервью** плюс проекция на Next.js / React. Не читай эту тему вместо моста, если ещё не уверен в `: string` и сужении.
+
 ---
 
 ## 1. Теория с аналогиями
