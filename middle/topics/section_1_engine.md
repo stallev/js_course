@@ -8,6 +8,8 @@
 
 # Раздел 1 — Движок и среда выполнения
 
+**Вход в слой Middle.** Курс не учит `let`, DOM и `fetch` с нуля. Если ещё не пишешь на React/TypeScript — сначала [`junior/`](../../junior/README.md) и мост [`typescript/`](../../typescript/README.md). Тема 1 сразу про Event Loop и интервью; тексты тем 1–28 не «опускаются» под junior.
+
 ---
 
 ## Тема 1 — Event Loop

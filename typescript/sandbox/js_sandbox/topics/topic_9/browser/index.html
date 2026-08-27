@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Тема 9 — unknown и DOM</title>
+  <title>Тема 11 (папка topic_9) — DOM</title>
   <link rel="stylesheet" href="../../../browser/runner.css" />
 </head>
 <body>
 <header class="page-header">
-  <h1>Тема 9 — unknown и DOM</h1>
+  <h1>Тема 11 (папка topic_9) — DOM</h1>
   <p>Исходник — <code>exercises.ts</code>. Для вкладки нужен <code>npm run bridge:watch</code>.</p>
   <span class="hint">Терминал: <code>npx tsx</code> из корня репозитория.</span>
 </header>
@@ -20,15 +20,15 @@
   <h2 class="section-title">Задания</h2>
   <div class="ex">
     <div class="ex-head">
-      <span class="ex-id">9.1</span>
-      <span class="ex-title">asString / fillTitle</span>
+      <span class="ex-id">11.1</span>
+      <span class="ex-title">fillTitle</span>
     </div>
-    <p class="ex-desc">asString для unknown; #title → «TS».</p>
+    <p class="ex-desc">#title → «TS»; без document — сообщение в лог.</p>
     <div class="ex-actions">
-      <button class="btn-run" data-fn="runTopic9">Запустить</button>
-      <button class="btn-clear" data-clear="runTopic9">Очистить</button>
+      <button class="btn-run" data-fn="runFillTitle">Запустить</button>
+      <button class="btn-clear" data-clear="runFillTitle">Очистить</button>
     </div>
-    <pre class="output" id="out-runTopic9"></pre>
+    <pre class="output" id="out-runFillTitle"></pre>
   </div>
 </section>
 <script type="module">

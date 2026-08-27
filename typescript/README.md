@@ -4,9 +4,11 @@
 
 **Стек:** TypeScript (`.ts`) · `npx tsx` · `tsc` · браузер после компиляции  
 **Вход:** пройден [`../junior/README.md`](../junior/README.md) (темы 1–26).  
-**Дальше:** [`../middle/README.md`](../middle/README.md), когда нужен стек React / Next и JS «под капотом».
+**Дальше:** [`../middle/README.md`](../middle/README.md) — вход «уже пишу React/TS, готовлю интервью». Тема 24 Middle не заменяет этот слой.
 
 Стратегия слоёв: [`../COURSE_ROADMAP.md`](../COURSE_ROADMAP.md).
+
+**Статус:** сетка — 14 тем, 5 разделов. Теория тем 1–14 приведена к стандарту.
 
 ---
 
@@ -25,7 +27,7 @@
 | Цель | написать и прочитать код | описать форму данных | интервью и стек |
 | Чего нет | аннотаций | хуков, дженериков уровня `infer` | повторения азбуки JS |
 
-Нумерация тем **своя** (1–9), не совпадает ни с Junior, ни с Middle.
+Нумерация тем **своя** (1–14), не совпадает ни с Junior, ни с Middle.
 
 Стандарт темы: [`general/01_topic_requirements.md`](general/01_topic_requirements.md)  
 Список тем: [`general/02_topic_list.md`](general/02_topic_list.md)  
@@ -40,7 +42,7 @@
 typescript/
 ├── README.md
 ├── general/
-├── topics/                 ← теория, 4 раздела, темы 1–9
+├── topics/                 ← теория, 5 разделов, темы 1–14
 └── sandbox/js_sandbox/     ← exercises.ts, solutions.ts, раннер
 ```
 

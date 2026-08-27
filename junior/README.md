@@ -6,7 +6,7 @@
 **Статус:** теория (E) и практика (F) готовы. Дальше по слоям: [`../typescript/README.md`](../typescript/README.md).
 
 Полная стратегия слоёв: [`../COURSE_ROADMAP.md`](../COURSE_ROADMAP.md).  
-Дальше по уровню: [`../typescript/README.md`](../typescript/README.md) → [`../middle/README.md`](../middle/README.md).
+Дальше по уровню: [`../typescript/README.md`](../typescript/README.md) → [`../middle/README.md`](../middle/README.md) (Middle — только если уже пишешь React/TS).
 
 ---
 
